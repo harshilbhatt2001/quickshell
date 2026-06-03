@@ -24,6 +24,7 @@
 
           buildInputs = with pkgs; [
             quickshell
+            kdePackages.qtdeclarative
           ];
 
           # Environment variables
