@@ -1,3 +1,3 @@
-require("lspconfig").qmlls.setup()
+vim.lsp.enable("qmlls")
 
 require("nvim-treesitter").install({ "qmljs" })
