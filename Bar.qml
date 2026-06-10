@@ -1,10 +1,11 @@
 import Quickshell
 import Quickshell.Hyprland
+
 import QtQuick
-import "Components/Color.js" as Colors
+import QtQuick.Effects
 
 import "Components"
-import "Components/Pill"
+import "Components/Color.js" as Colors
 
 Scope {
     Variants {
@@ -28,7 +29,12 @@ Scope {
 								exclusionMode: ExclusionMode.Normal
 
 								mask: Region {
-									item: container
+									Region {
+										item: workspaceSwitcher
+									}
+									Region {
+										item: pillItem
+									}
 								}
 
                 anchors {
@@ -38,11 +44,32 @@ Scope {
                 }
 
 								implicitHeight: 1000
-								exclusiveZone: 15
+								exclusiveZone: 20
 
-								Pill {
-									id: container
+								Workspace {
+									id: workspaceSwitcher
 									monitor: win.monitor
+								}
+
+								RectangularShadow {
+									anchors.fill: pillItem
+									offset.x: 3
+									offset.y: 3
+									radius: pillItem.radius
+									blur: 20
+									spread: 7
+									color: Colors.crust
+								}
+								Pill {
+									id: pillItem
+									monitor: win.monitor
+								}
+
+								Item {
+									anchors.fill: parent
+									Utils {
+										monitor: win.monitor
+									}
 								}
             }
         }

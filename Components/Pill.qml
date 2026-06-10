@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import "Color.js" as Colors
 
 import "./Pill"
@@ -48,9 +49,10 @@ Rectangle {
 	gradient: Gradient {
 		GradientStop { position: 0.0; color: Colors.surface0 }
 		GradientStop { position: container.gradientMidpoint; color: Colors.surface0 }
-		GradientStop { position: 1.0; color: Colors.overlay0 }
+		GradientStop { position: 1.0; color: Colors.surface2 }
 	}
 
+	border {color: Colors.lavender; width: 2}
 
 	component SmoothAnim: SpringAnimation {
 		spring: 3
@@ -104,7 +106,6 @@ Rectangle {
 
 			onClicked: {
 				container.state == 'expanded' ? container.state = "" : container.state = 'expanded';
-				print("clicked")
 			}
 
 			onExited: {
