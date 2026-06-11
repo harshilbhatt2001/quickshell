@@ -1,77 +1,86 @@
-import Quickshell
-import Quickshell.Hyprland
-
 import QtQuick
 import QtQuick.Effects
-
-import "Components"
+import Quickshell
+import Quickshell.Hyprland
 import "Components/Color.js" as Colors
 
+import "Components"
+
 Scope {
-    Variants {
-        model: Quickshell.screens
+  Variants {
+	model: Quickshell.screens
 
-        delegate: Component {
-            PanelWindow {
-                id: win
-                required property var modelData
+	delegate: Component {
+	  PanelWindow {
+		id: win
 
-                screen: modelData
+		required property var modelData
+		property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
 
-								Behavior on implicitHeight {
-									NumberAnimation { duration: 0; easing.type: Easing.InOutQuad }
-								}
+		color: "transparent"
+		exclusionMode: ExclusionMode.Normal
+		exclusiveZone: 20
+		implicitHeight: 1000
+		screen: modelData
 
-                property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
+		Behavior on implicitHeight {
+		  NumberAnimation {
+			duration: 0
+			easing.type: Easing.InOutQuad
+		  }
+		}
+		mask: Region {
+		  Region {
+			item: workspaceSwitcher
+		  }
 
-								color: "transparent"
+		  Region {
+			item: pillItem
+		  }
 
-								exclusionMode: ExclusionMode.Normal
+		  Region {
+			item: utilsItem
+		  }
+		}
 
-								mask: Region {
-									Region {
-										item: workspaceSwitcher
-									}
-									Region {
-										item: pillItem
-									}
-								}
+		anchors {
+		  left: true
+		  right: true
+		  top: true
+		}
 
-                anchors {
-                    top: true
-                    left: true
-                    right: true
-                }
+		Workspace {
+		  id: workspaceSwitcher
 
-								implicitHeight: 1000
-								exclusiveZone: 20
+		  monitor: win.monitor
+		}
 
-								Workspace {
-									id: workspaceSwitcher
-									monitor: win.monitor
-								}
+		RectangularShadow {
+		  anchors.fill: pillItem
+		  blur: 20
+		  color: Colors.crust
+		  offset.x: 3
+		  offset.y: 3
+		  radius: pillItem.radius
+		  spread: 7
+		}
 
-								RectangularShadow {
-									anchors.fill: pillItem
-									offset.x: 3
-									offset.y: 3
-									radius: pillItem.radius
-									blur: 20
-									spread: 7
-									color: Colors.crust
-								}
-								Pill {
-									id: pillItem
-									monitor: win.monitor
-								}
+		Pill {
+		  id: pillItem
 
-								Item {
-									anchors.fill: parent
-									Utils {
-										monitor: win.monitor
-									}
-								}
-            }
-        }
-    }
+		  monitor: win.monitor
+		}
+
+		Item {
+		  anchors.fill: parent
+
+		  Utils {
+			id: utilsItem
+
+			monitor: win.monitor
+		  }
+		}
+	  }
+	}
+  }
 }

@@ -1,41 +1,45 @@
-
 pragma ComponentBehavior: Bound
+import QtQuick
+import QtQuick.Layouts
 
 import Quickshell
 import Quickshell.Hyprland
-import QtQuick
-import QtQuick.Layouts
 
 import "./Utils"
 
 RowLayout {
-	id: utilsContainer
-	required property HyprlandMonitor monitor
-	state: ""
+  id: utilsContainer
 
-	anchors {
-		right: parent.right
-		top: parent.top
-	}
-	
-	states: [
-		State {
-			name: ""
-		}
-	]
+  required property HyprlandMonitor monitor
+  property bool shown: monitor !== null && monitor.focused
 
-	Rectangle {
-		color: "red"
-		implicitWidth: 40
-		implicitHeight: 40
-	}
-	Rectangle {
-		color: "blue"
-		implicitWidth: 40
-		implicitHeight: 40
-	}
+  opacity: shown ? 1 : 0
+  state: ""
 
-	// Battery {}
-	// Mpris {}
+  Behavior on anchors.topMargin {
+	SmoothedAnimation {
+	  duration: 300
+	}
+  }
+  Behavior on opacity {
+	NumberAnimation {
+	  duration: 50
+	}
+  }
+  states: [
+	State {
+	  name: ""
+	}
+  ]
+
+  anchors {
+	right: parent.right
+	rightMargin: 7
+	top: parent.top
+	topMargin: shown ? -33 : -40
+  }
+
+  Battery {}
+  // Mpris {}
 
 }
