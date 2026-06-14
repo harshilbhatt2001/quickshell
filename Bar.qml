@@ -48,7 +48,7 @@ Scope {
 		Item {
 		  anchors {
 			fill: parent
-			topMargin: 2
+			topMargin: 3
 		  }
 
 		  Row {

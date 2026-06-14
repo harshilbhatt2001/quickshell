@@ -22,7 +22,7 @@ Item {
   function getVisible() {
 	if (containerRoot.exclusiveToScreen) {
 	  if (Hyprland.focusedMonitor != containerRoot.exclusiveMonitor) {
-		return -2 - containerRoot.boxHeight - 5;
+		return -4 - containerRoot.boxHeight - 5;
 	  } else {
 		return 0;
 	  }
@@ -31,6 +31,7 @@ Item {
 	}
   }
 
+  clip: true
   implicitHeight: boxHeight
   implicitWidth: boxWidth
 
@@ -44,8 +45,9 @@ Item {
 	}
   }
   Behavior on boxRadius {
-	NumberAnimation {
-	  duration: 100
+	SpringAnimation {
+	  damping: 0.3
+	  spring: 4
 	}
   }
   Behavior on boxWidth {
@@ -87,33 +89,24 @@ Item {
 
 	  anchors.fill: parent
 
-	  popEnter: Transition {
+	  replaceEnter: Transition {
 		PropertyAnimation {
-		  duration: 200
+		  duration: 100
 		  from: 0
 		  property: "opacity"
 		  to: 1
 		}
-	  }
-	  popExit: Transition {
+
 		PropertyAnimation {
-		  duration: 200
-		  from: 1
-		  property: "opacity"
+		  duration: 100
+		  from: -5
+		  property: "anchors.topMargin"
 		  to: 0
 		}
 	  }
-	  pushEnter: Transition {
+	  replaceExit: Transition {
 		PropertyAnimation {
-		  duration: 200
-		  from: 0
-		  property: "opacity"
-		  to: 1
-		}
-	  }
-	  pushExit: Transition {
-		PropertyAnimation {
-		  duration: 200
+		  duration: 100
 		  from: 1
 		  property: "opacity"
 		  to: 0

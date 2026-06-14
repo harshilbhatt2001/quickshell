@@ -22,6 +22,12 @@ Container {
 	State {
 	  name: ""
 
+	  PropertyChanges {
+		centerPill.boxHeight: 28
+		centerPill.boxRadius: 9
+		centerPill.boxWidth: 100
+	  }
+
 	  StateChangeScript {
 		script: {
 		  if (centerPill.previousState != "hovered") {
@@ -36,6 +42,7 @@ Container {
 
 	  PropertyChanges {
 		centerPill.boxHeight: 35
+		centerPill.boxRadius: 15
 		centerPill.boxWidth: 110
 	  }
 
@@ -86,19 +93,48 @@ Container {
   Component {
 	id: fullTime
 
-	Column {
-	  Layout.alignment: Qt.AlignCenter
-	  spacing: 5
+	Item {
+	  Rectangle {
+		anchors.fill: parent
+		radius: 30
 
-	  Item {
-		CenteredText {
-		  text: Time.time
+		gradient: Gradient {
+		  GradientStop {
+			color: "transparent"
+			position: 0.0
+		  }
+
+		  GradientStop {
+			color: "transparent"
+			position: 0.6
+		  }
+
+		  GradientStop {
+			color: Colors.red
+			position: 1.0
+		  }
 		}
 	  }
 
-	  Item {
-		CenteredText {
+	  Column {
+		anchors.centerIn: parent
+		spacing: 5
+
+		StyledText {
+		  anchors.horizontalCenter: parent.horizontalCenter
+		  font.pointSize: 30
+		  text: Time.time
+		}
+
+		StyledText {
+		  anchors.horizontalCenter: parent.horizontalCenter
+		  color: Colors.surface0
 		  text: Time.date
+
+		  font {
+			pointSize: 9
+			weight: 400
+		  }
 		}
 	  }
 	}
