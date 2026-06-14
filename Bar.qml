@@ -70,7 +70,9 @@ Scope {
 			  horizontalCenter: parent.horizontalCenter
 			}
 
-			Center {}
+			Center {
+			  monitor: win.monitor
+			}
 		  }
 
 		  Row {

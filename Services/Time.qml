@@ -28,11 +28,11 @@ Singleton {
   Process {
 	id: dateProc
 
-	command: ["date"]
+	command: ["date", "+%A %B %d %Y"]
 	running: true
 
 	stdout: StdioCollector {
-	  onStreamFinished: root.time = this.text
+	  onStreamFinished: root.date = this.text
 	}
   }
 
@@ -41,6 +41,9 @@ Singleton {
 	repeat: true
 	running: true
 
-	onTriggered: timeProc.running = true
+	onTriggered: {
+	  timeProc.running = true;
+	  dateProc.running = true;
+	}
   }
 }

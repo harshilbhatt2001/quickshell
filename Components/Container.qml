@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import Quickshell
+import Quickshell.Hyprland
 
 import "../Color.js" as Colors
 
@@ -12,6 +13,7 @@ Item {
   property double boxRadius: 9
   property double boxWidth: 100
   property Component defaultItem
+  required property HyprlandMonitor exclusiveMonitor
   property bool exclusiveToScreen: false
   property alias mouse: mouseArea
   property alias rect: container
@@ -19,9 +21,11 @@ Item {
 
   function getVisible() {
 	if (containerRoot.exclusiveToScreen) {
-	  let minMargin = -2 - containerRoot.boxHeight;
-	  console.log(minMargin);
-	  return minMargin - 5;
+	  if (Hyprland.focusedMonitor != containerRoot.exclusiveMonitor) {
+		return -2 - containerRoot.boxHeight - 5;
+	  } else {
+		return 0;
+	  }
 	} else {
 	  return 0;
 	}
@@ -30,11 +34,25 @@ Item {
   implicitHeight: boxHeight
   implicitWidth: boxWidth
 
+  Behavior on anchors.topMargin {
+	animation: defaultCurve
+  }
   Behavior on boxHeight {
-	animation: defaultAnim
+	SpringAnimation {
+	  damping: 0.3
+	  spring: 4
+	}
+  }
+  Behavior on boxRadius {
+	NumberAnimation {
+	  duration: 100
+	}
   }
   Behavior on boxWidth {
-	animation: defaultAnim
+	SpringAnimation {
+	  damping: 0.3
+	  spring: 4
+	}
   }
 
   anchors {
@@ -42,11 +60,11 @@ Item {
 	topMargin: getVisible()
   }
 
-  SpringAnimation {
-	id: defaultAnim
+  NumberAnimation {
+	id: defaultCurve
 
-	damping: 0.3
-	spring: 4
+	duration: 200
+	easing: Easing.InOutBack
   }
 
   MouseArea {
@@ -68,6 +86,39 @@ Item {
 	  id: containerContent
 
 	  anchors.fill: parent
+
+	  popEnter: Transition {
+		PropertyAnimation {
+		  duration: 200
+		  from: 0
+		  property: "opacity"
+		  to: 1
+		}
+	  }
+	  popExit: Transition {
+		PropertyAnimation {
+		  duration: 200
+		  from: 1
+		  property: "opacity"
+		  to: 0
+		}
+	  }
+	  pushEnter: Transition {
+		PropertyAnimation {
+		  duration: 200
+		  from: 0
+		  property: "opacity"
+		  to: 1
+		}
+	  }
+	  pushExit: Transition {
+		PropertyAnimation {
+		  duration: 200
+		  from: 1
+		  property: "opacity"
+		  to: 0
+		}
+	  }
 
 	  Component.onCompleted: containerContent.push(containerRoot.defaultItem)
 	  onCurrentItemChanged: {
