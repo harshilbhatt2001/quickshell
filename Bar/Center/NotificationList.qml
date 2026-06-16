@@ -72,12 +72,6 @@ Item {
 		  background.anchors.leftMargin: 5
 		  background.anchors.rightMargin: 5
 		}
-
-		StateChangeScript {
-		  script: {
-			console.log("some");
-		  }
-		}
 	  }
 	]
 
