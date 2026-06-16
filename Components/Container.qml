@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Hyprland
 
@@ -12,26 +13,26 @@ Item {
   property double boxHeight: 28
   property double boxRadius: 9
   property double boxWidth: 100
-  property Component defaultItem
-  required property HyprlandMonitor exclusiveMonitor
-  property bool exclusiveToScreen: false
-  property alias mouse: mouseArea
-  property alias rect: container
-  property alias stack: containerContent
-
-  function getVisible() {
+  readonly property double calculatedTopMargin: {
 	if (containerRoot.exclusiveToScreen) {
 	  if (Hyprland.focusedMonitor != containerRoot.exclusiveMonitor) {
 		return -4 - containerRoot.boxHeight - 5;
 	  } else {
-		return 0;
+		return visibleTopMargin;
 	  }
 	} else {
-	  return 0;
+	  return visibleTopMargin;
 	}
   }
+  property Component defaultItem
+  required property HyprlandMonitor exclusiveMonitor
+  property bool exclusiveToScreen: false
+  property alias hover: hoverHandler
+  property alias rect: container
+  property alias stack: containerContent
+  property alias tap: tapHandler
+  property double visibleTopMargin: 0
 
-  clip: true
   implicitHeight: boxHeight
   implicitWidth: boxWidth
 
@@ -59,7 +60,7 @@ Item {
 
   anchors {
 	top: parent.top
-	topMargin: getVisible()
+	topMargin: calculatedTopMargin
   }
 
   NumberAnimation {
@@ -69,18 +70,29 @@ Item {
 	easing: Easing.InOutBack
   }
 
-  MouseArea {
-	id: mouseArea
+  HoverHandler {
+	id: hoverHandler
+  }
 
-	anchors.fill: parent
-	hoverEnabled: true
-	z: 1
+  TapHandler {
+	id: tapHandler
+  }
+
+  RectangularShadow {
+	anchors.fill: container
+	blur: 30
+	color: Colors.mantle
+	offset.x: 7
+	offset.y: 3
+	radius: container.radius
+	spread: 10
   }
 
   Rectangle {
 	id: container
 
 	anchors.fill: parent
+	clip: true
 	color: containerRoot.boxColor
 	radius: containerRoot.boxRadius
 

@@ -1,20 +1,25 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Services.Notifications
 import "../Color.js" as Colors
 import "../Components/"
 import "../Services/"
+import "./Center"
 
 Container {
-  id: centerPill
+  id: root
 
+  property Notification latestNotification: NotificationManager.getLatestNotification() || null
   required property HyprlandMonitor monitor
+  property NotificationServer notifServer: NotificationManager.notif
   property string previousState
 
   boxColor: Colors.mauve
   defaultItem: time
-  exclusiveMonitor: centerPill.monitor
+  exclusiveMonitor: root.monitor
   exclusiveToScreen: true
   state: ""
 
@@ -23,17 +28,18 @@ Container {
 	  name: ""
 
 	  PropertyChanges {
-		centerPill.boxHeight: 28
-		centerPill.boxRadius: 9
-		centerPill.boxWidth: 100
+		root.boxHeight: 28
+		root.boxRadius: 9
+		root.boxWidth: 100
+		root.visibleTopMargin: 0
 	  }
 
 	  StateChangeScript {
 		script: {
-		  if (centerPill.previousState != "hovered") {
-			centerPill.stack.replace(time);
+		  if (root.previousState != "hovered") {
+			root.stack.replace(time);
 		  }
-		  centerPill.previousState = "";
+		  root.previousState = "";
 		}
 	  }
 	},
@@ -41,14 +47,15 @@ Container {
 	  name: "hovered"
 
 	  PropertyChanges {
-		centerPill.boxHeight: 35
-		centerPill.boxRadius: 15
-		centerPill.boxWidth: 110
+		root.boxHeight: 35
+		root.boxRadius: 15
+		root.boxWidth: 110
+		root.visibleTopMargin: 0
 	  }
 
 	  StateChangeScript {
 		script: {
-		  centerPill.previousState = "hovered";
+		  root.previousState = "hovered";
 		}
 	  }
 	},
@@ -56,28 +63,74 @@ Container {
 	  name: "expanded"
 
 	  PropertyChanges {
-		centerPill.boxHeight: 140
-		centerPill.boxRadius: 30
-		centerPill.boxWidth: 300
+		root.boxHeight: 140
+		root.boxRadius: 30
+		root.boxWidth: 300
+		root.visibleTopMargin: 0
 	  }
 
 	  StateChangeScript {
 		script: {
-		  centerPill.stack.replace(fullTime);
-		  centerPill.previousState = "expanded";
+		  if (root.state != "notifications") {
+			root.stack.replace(fullTime);
+			root.previousState = "expanded";
+		  }
+		}
+	  }
+	},
+	State {
+	  extend: "expanded"
+	  name: "notifications"
+
+	  PropertyChanges {
+		root.boxHeight: 320
+	  }
+	},
+	State {
+	  name: "notified"
+
+	  PropertyChanges {
+		root.boxHeight: 90
+		root.boxRadius: 30
+		root.boxWidth: 330
+		root.visibleTopMargin: 20
+	  }
+
+	  StateChangeScript {
+		script: {
+		  root.stack.replace(notification);
+		  root.previousState = "notified";
 		}
 	  }
 	}
   ]
 
-  mouse.onClicked: {
-	centerPill.state == "expanded" ? centerPill.state = "" : centerPill.state = "expanded";
+  hover.onHoveredChanged: {
+	hover.hovered == true ? root.state == "notified" ? root.state = "notified" : root.state = "hovered" :
+													   root.state = "";
   }
-  mouse.onEntered: {
-	centerPill.state = "hovered";
+  onLatestNotificationChanged: {
+	if (latestNotification != null && Hyprland.focusedMonitor == monitor) {
+	  if (root.latestNotification.lastGeneration == false) {
+		root.state = "notified";
+		notificationViewTimer.start();
+	  }
+	}
   }
-  mouse.onExited: {
-	centerPill.state = "";
+  tap.onTapped: {
+	root.state == "hovered" ? root.state = "expanded" : undefined;
+  }
+
+  Timer {
+	id: notificationViewTimer
+
+	interval: 3000
+	repeat: false
+	running: false || !root.hover.hovered
+
+	onTriggered: {
+	  root.state = "";
+	}
   }
 
   Component {
@@ -93,48 +146,40 @@ Container {
   Component {
 	id: fullTime
 
-	Item {
-	  Rectangle {
-		anchors.fill: parent
-		radius: 30
+	Expanded {
+	  NotificationList {
+		id: notifList
 
-		gradient: Gradient {
-		  GradientStop {
-			color: "transparent"
-			position: 0.0
-		  }
+		animEnabled: false
+		radius: root.boxRadius
+		rootState: root.state
+		server: root.notifServer
+		state: ""
 
-		  GradientStop {
-			color: "transparent"
-			position: 0.6
-		  }
-
-		  GradientStop {
-			color: Colors.red
-			position: 1.0
+		TapHandler {
+		  onTapped: {
+			notifList.animEnabled = true;
+			root.state = "notifications";
+			Qt.callLater(() => {
+						   notifList.animEnabled = false;
+						 });
 		  }
 		}
 	  }
+	}
+  }
 
-	  Column {
-		anchors.centerIn: parent
-		spacing: 5
+  Component {
+	id: notification
 
-		StyledText {
-		  anchors.horizontalCenter: parent.horizontalCenter
-		  font.pointSize: 30
-		  text: Time.time
-		}
+	NotificationDisplay {
+	  body: root.latestNotification.body
+	  summary: root.latestNotification.summary
 
-		StyledText {
-		  anchors.horizontalCenter: parent.horizontalCenter
-		  color: Colors.surface0
-		  text: Time.date
-
-		  font {
-			pointSize: 9
-			weight: 400
-		  }
+	  TapHandler {
+		onTapped: {
+		  root.state = "notifications";
+		  root.stack.replace(fullTime);
 		}
 	  }
 	}

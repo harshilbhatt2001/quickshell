@@ -1,0 +1,3 @@
+module Services
+singleton Time 1.0 Time.qml
+singleton NotificationManager 1.0 NotificationManager.qml
