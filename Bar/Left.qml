@@ -8,17 +8,18 @@ import "../Color.js" as Colors
 import "../Components/"
 import "../Services/"
 import "./Center"
+import "./Left/"
 
 Container {
+  id: root
+
   required property HyprlandMonitor monitor
 
   boxHeight: 25
   boxWidth: 40
   exclusiveMonitor: monitor
 
-  Item {
-	StyledText {
-	  text: WorkspaceManager.getWorkspacesForMonitor(monitor)
-	}
+  defaultItem: WorkspaceContainer {
+	monitor: root.monitor
   }
 }
