@@ -17,6 +17,7 @@ Singleton {
 		}
 	  }
 	}
+	return filteredWorkspaces;
   }
 
   function getWorkspacesForMonitor(monitor) {

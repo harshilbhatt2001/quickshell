@@ -9,9 +9,7 @@ Item {
 
   required property HyprlandWorkspace workspace
 
-  Rectangle {
-	StyledText {
-		text: "some"
-	}
+  StyledText {
+	text: root.workspace.id
   }
 }

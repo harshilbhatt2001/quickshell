@@ -16,7 +16,7 @@ Container {
   required property HyprlandMonitor monitor
 
   boxHeight: 25
-  boxWidth: 40
+  boxWidth: 200
   exclusiveMonitor: monitor
 
   defaultItem: WorkspaceContainer {

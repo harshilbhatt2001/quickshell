@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import "../../Components/"
@@ -9,21 +10,18 @@ Item {
 
   required property HyprlandMonitor monitor
 
-  Row {
+  RowLayout {
 	anchors.fill: parent
+
 
 	Repeater {
 	  model: WorkspaceManager.getWorkspacesForMonitor(root.monitor)
 
-	  CenteredText {
-		text: console.log("some")
-	  }
+	  WorkspaceSelector {
+		required property HyprlandWorkspace modelData
 
-	  //  WorkspaceSelector {
-	  // required property HyprlandWorkspace modelData
-	  //
-	  // workspace: modelData
-	  //  }
+		workspace: modelData
+	  }
 	}
   }
 }
