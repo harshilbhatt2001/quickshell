@@ -21,6 +21,7 @@ Singleton {
   NotificationServer {
 	id: server
 
+	actionsSupported: true
 	bodyMarkupSupported: true
 	bodySupported: true
 

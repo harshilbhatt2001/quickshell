@@ -57,7 +57,12 @@ Scope {
 			height: childrenRect.height
 
 			anchors {
-			  right: parent.right
+			  left: parent.left
+			  leftMargin: 7
+			}
+
+			Left {
+			  monitor: win.monitor
 			}
 		  }
 
@@ -81,7 +86,8 @@ Scope {
 			height: childrenRect.height
 
 			anchors {
-			  left: parent.left
+			  right: parent.right
+			  rightMargin: 7
 			}
 		  }
 		}

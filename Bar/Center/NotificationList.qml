@@ -112,8 +112,6 @@ Item {
 	  model: root.server.trackedNotifications.values.length
 	  spacing: 7
 
-	  // verticalLayoutDirection: ListView.BottomToTop
-
 	  delegate: Item {
 		id: notifRoot
 
@@ -168,6 +166,19 @@ Item {
 			  }
 			}
 		  ]
+
+		  StyledText {
+			color: Colors.surface0
+			font.pointSize: 15
+			horizontalAlignment: Qt.AlignRight
+			text: "󰩹"
+			verticalAlignment: Qt.AlignVCenter
+
+			anchors {
+			  fill: parent
+			  rightMargin: 14
+			}
+		  }
 
 		  TapHandler {
 			onTapped: {
