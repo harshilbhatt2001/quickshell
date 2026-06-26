@@ -22,7 +22,6 @@ Container {
   defaultItem: time
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
-  state: ""
 
   states: [
 	State {
@@ -50,18 +49,30 @@ Container {
 	  PropertyChanges {
 		root.boxHeight: 35
 		root.boxRadius: 15
-		root.boxWidth: MprisManager.getPlaying() == true ? 350 : 110
+		root.boxWidth: 110
 		root.visibleTopMargin: 0
 	  }
 
 	  StateChangeScript {
 		script: {
-		  if (MprisManager.getPlaying()) {
-			root.previousState = "mpris";
-			root.stack.replace(mpris);
-		  } else {
-			root.previousState = "hovered";
-		  }
+		  root.previousState = "hovered";
+		}
+	  }
+	},
+	State {
+	  name: "mprisToast"
+
+	  PropertyChanges {
+		root.boxHeight: 35
+		root.boxRadius: 15
+		root.boxWidth: 350
+		root.visibleTopMargin: 0
+	  }
+
+	  StateChangeScript {
+		script: {
+		  root.previousState = "mpris";
+		  root.stack.replace(mpris);
 		}
 	  }
 	},
@@ -112,8 +123,18 @@ Container {
   ]
 
   hover.onHoveredChanged: {
-	hover.hovered == true ? root.state == "notified" ? root.state = "notified" : root.state = "hovered" :
-													   root.state = "";
+	if (hover.hovered == true) {
+	  if (root.state == "notified") {
+		root.state = "notified";
+		notificationViewTimer.stop();
+	  } else if (MprisManager.getPlaying() == true) {
+		root.state = "mprisToast";
+	  } else {
+		root.state = "hovered";
+	  }
+	} else {
+	  root.state = "";
+	}
   }
   onLatestNotificationChanged: {
 	if (latestNotification != null && Hyprland.focusedMonitor == monitor) {
@@ -130,8 +151,10 @@ Container {
   Connections {
 	function onTrackChanged() {
 	  if (Hyprland.focusedMonitor == root.monitor) {
-		musicToastTimer.start();
-		root.state = "hovered";
+		musicToastTimer.restart();
+		if (root.state == "") {
+		  root.state = "mprisToast";
+		}
 	  }
 	}
 
@@ -143,7 +166,7 @@ Container {
 
 	interval: 3000
 	repeat: false
-	running: false || !root.hover.hovered
+	running: false
 
 	onTriggered: {
 	  root.state = "";
@@ -153,12 +176,15 @@ Container {
   Timer {
 	id: musicToastTimer
 
-	interval: 2000
+	interval: 3000
 	repeat: false
 	running: false
 
 	onTriggered: {
-	  root.state = "";
+	  if (!root.hover.hovered) {
+		console.log("some");
+		root.state = "";
+	  }
 	}
   }
 
