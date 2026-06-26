@@ -1,10 +1,10 @@
 import QtQuick
 import QtQuick.Effects
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import "Components/Color.js" as Colors
-
-import "Components"
+import "Bar"
+import "Color.js" as Colors
 
 Scope {
   Variants {
@@ -14,32 +14,28 @@ Scope {
 	  PanelWindow {
 		id: win
 
+		property double barExclusionZone: 15
+		property double barMaxHeight: 1000
 		required property var modelData
 		property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
 
 		color: "transparent"
 		exclusionMode: ExclusionMode.Normal
-		exclusiveZone: 20
-		implicitHeight: 1000
+		exclusiveZone: barExclusionZone
+		implicitHeight: barMaxHeight
 		screen: modelData
 
-		Behavior on implicitHeight {
-		  NumberAnimation {
-			duration: 0
-			easing.type: Easing.InOutQuad
-		  }
-		}
 		mask: Region {
 		  Region {
-			item: workspaceSwitcher
+			item: left
 		  }
 
 		  Region {
-			item: pillItem
+			item: center
 		  }
 
 		  Region {
-			item: utilsItem
+			item: right
 		  }
 		}
 
@@ -49,35 +45,54 @@ Scope {
 		  top: true
 		}
 
-		Workspace {
-		  id: workspaceSwitcher
-
-		  monitor: win.monitor
-		}
-
-		RectangularShadow {
-		  anchors.fill: pillItem
-		  blur: 20
-		  color: Colors.crust
-		  offset.x: 3
-		  offset.y: 3
-		  radius: pillItem.radius
-		  spread: 7
-		}
-
-		Pill {
-		  id: pillItem
-
-		  monitor: win.monitor
-		}
-
 		Item {
-		  anchors.fill: parent
+		  anchors {
+			fill: parent
+			topMargin: 3
+		  }
 
-		  Utils {
-			id: utilsItem
+		  Row {
+			id: left
 
-			monitor: win.monitor
+			height: childrenRect.height
+
+			anchors {
+			  left: parent.left
+			  leftMargin: 7
+			}
+
+			Left {
+			  monitor: win.monitor
+			}
+		  }
+
+		  Row {
+			id: center
+
+			height: childrenRect.height
+
+			anchors {
+			  horizontalCenter: parent.horizontalCenter
+			}
+
+			Center {
+			  monitor: win.monitor
+			}
+		  }
+
+		  Row {
+			id: right
+
+			height: childrenRect.height
+
+			anchors {
+			  right: parent.right
+			  rightMargin: 7
+			}
+
+			Right {
+			  monitor: win.monitor
+			}
 		  }
 		}
 	  }

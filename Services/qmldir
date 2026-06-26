@@ -1,0 +1,6 @@
+module Services
+singleton Time 1.0 Time.qml
+singleton NotificationManager 1.0 NotificationManager.qml
+singleton WorkspaceManager 1.0 WorkspaceManager.qml
+singleton BluetoothManager 1.0 BluetoothManager.qml
+singleton MprisManager 1.0 MprisManager.qml
