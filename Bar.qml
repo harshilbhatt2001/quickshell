@@ -89,6 +89,10 @@ Scope {
 			  right: parent.right
 			  rightMargin: 7
 			}
+
+			Right {
+			  monitor: win.monitor
+			}
 		  }
 		}
 	  }

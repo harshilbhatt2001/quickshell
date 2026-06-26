@@ -79,8 +79,7 @@ Item {
 	  fill: parent
 	}
 
-	StyledText {
-	  anchors.centerIn: parent
+	CenteredText {
 	  font.pointSize: 10.5
 	  text: root.workspace.id
 	}

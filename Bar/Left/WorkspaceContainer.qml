@@ -19,6 +19,8 @@ Item {
   required property double selectorWidth
 
   Item {
+	id: newWorkspaceButton
+
 	implicitWidth: 20
 	opacity: root.extraHoveredWidth > 0 ? 1 : 0
 
@@ -45,7 +47,7 @@ Item {
 
 	Rectangle {
 	  anchors.fill: parent
-	  color: Colors.red
+	  color: Colors.green
 	  radius: 4
 
 	  StyledText {

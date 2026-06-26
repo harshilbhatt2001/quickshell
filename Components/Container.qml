@@ -7,16 +7,17 @@ import Quickshell.Hyprland
 import "../Color.js" as Colors
 
 Item {
-  id: containerRoot
+  id: root
 
+  property double animOffset: 0
   property color boxColor: Colors.surface0
   property double boxHeight: 28
   property double boxRadius: 9
   property double boxWidth: 100
   readonly property double calculatedTopMargin: {
-	if (containerRoot.exclusiveToScreen) {
-	  if (Hyprland.focusedMonitor != containerRoot.exclusiveMonitor) {
-		return -4 - containerRoot.boxHeight - 5;
+	if (root.exclusiveToScreen) {
+	  if (Hyprland.focusedMonitor != root.exclusiveMonitor || forceHidden == true) {
+		return -4 - root.boxHeight - 5;
 	  } else {
 		return visibleTopMargin;
 	  }
@@ -27,6 +28,7 @@ Item {
   property Component defaultItem
   required property HyprlandMonitor exclusiveMonitor
   property bool exclusiveToScreen: false
+  property bool forceHidden: false
   property alias hover: hoverHandler
   property alias rect: container
   property alias stack: containerContent
@@ -66,7 +68,7 @@ Item {
   NumberAnimation {
 	id: defaultCurve
 
-	duration: 200
+	duration: 200 + root.animOffset
 	easing: Easing.InOutBack
   }
 
@@ -93,8 +95,8 @@ Item {
 
 	anchors.fill: parent
 	clip: true
-	color: containerRoot.boxColor
-	radius: containerRoot.boxRadius
+	color: root.boxColor
+	radius: root.boxRadius
 
 	StackView {
 	  id: containerContent
@@ -125,7 +127,7 @@ Item {
 		}
 	  }
 
-	  Component.onCompleted: containerContent.push(containerRoot.defaultItem)
+	  Component.onCompleted: containerContent.push(root.defaultItem)
 	  onCurrentItemChanged: {
 		if (currentItem) {
 		  // Dynamically center the incoming child to the StackView

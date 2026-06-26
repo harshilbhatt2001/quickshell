@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Services.Mpris
 import Quickshell.Services.Notifications
 import "../Color.js" as Colors
 import "../Components/"
@@ -49,13 +50,18 @@ Container {
 	  PropertyChanges {
 		root.boxHeight: 35
 		root.boxRadius: 15
-		root.boxWidth: 110
+		root.boxWidth: MprisManager.getPlaying() == true ? 350 : 110
 		root.visibleTopMargin: 0
 	  }
 
 	  StateChangeScript {
 		script: {
-		  root.previousState = "hovered";
+		  if (MprisManager.getPlaying()) {
+			root.previousState = "mpris";
+			root.stack.replace(mpris);
+		  } else {
+			root.previousState = "hovered";
+		  }
 		}
 	  }
 	},
@@ -121,6 +127,17 @@ Container {
 	root.state == "hovered" ? root.state = "expanded" : undefined;
   }
 
+  Connections {
+	function onTrackChanged() {
+	  if (Hyprland.focusedMonitor == root.monitor) {
+		musicToastTimer.start();
+		root.state = "hovered";
+	  }
+	}
+
+	target: MprisManager.defaultPlayer
+  }
+
   Timer {
 	id: notificationViewTimer
 
@@ -133,12 +150,46 @@ Container {
 	}
   }
 
+  Timer {
+	id: musicToastTimer
+
+	interval: 2000
+	repeat: false
+	running: false
+
+	onTriggered: {
+	  root.state = "";
+	}
+  }
+
   Component {
 	id: time
 
 	Item {
 	  CenteredText {
 		text: Time.time
+	  }
+	}
+  }
+
+  Component {
+	id: mpris
+
+	Mpris {
+	  TapHandler {
+		onTapped: root.state = "expanded"
+	  }
+
+	  TapHandler {
+		acceptedButtons: Qt.RightButton
+
+		onTapped: MprisManager.skip()
+	  }
+
+	  TapHandler {
+		acceptedButtons: Qt.MiddleButton
+
+		onTapped: MprisManager.prev()
 	  }
 	}
   }
