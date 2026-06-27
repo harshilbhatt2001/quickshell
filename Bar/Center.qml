@@ -140,7 +140,7 @@ Container {
 	if (latestNotification != null && Hyprland.focusedMonitor == monitor) {
 	  if (root.latestNotification.lastGeneration == false) {
 		root.state = "notified";
-		notificationViewTimer.start();
+		notificationViewTimer.restart();
 	  }
 	}
   }

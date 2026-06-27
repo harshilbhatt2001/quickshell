@@ -34,9 +34,11 @@ Item {
 	StyledText {
 	  elide: Text.ElideRight
 	  horizontalAlignment: Text.AlignHCenter
+	  maximumLineCount: 2
 	  text: root.body
 	  verticalAlignment: Text.AlignVCenter
-		width: root.width - 20
+	  width: root.width - 20
+	  wrapMode: Text.WordWrap
 
 	  font {
 		pointSize: 10
