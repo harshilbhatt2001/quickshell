@@ -182,7 +182,6 @@ Container {
 
 	onTriggered: {
 	  if (!root.hover.hovered) {
-		console.log("some");
 		root.state = "";
 	  }
 	}

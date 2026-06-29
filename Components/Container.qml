@@ -16,8 +16,9 @@ Item {
   property double boxWidth: 100
   readonly property double calculatedTopMargin: {
 	if (root.exclusiveToScreen) {
+	  let baseMargin = hoverableWhenHidden == true ? 8 : -4;
 	  if (Hyprland.focusedMonitor != root.exclusiveMonitor || forceHidden == true) {
-		return -4 - root.boxHeight - 5;
+		return baseMargin - root.boxHeight - 5;
 	  } else {
 		return visibleTopMargin;
 	  }
@@ -30,6 +31,7 @@ Item {
   property bool exclusiveToScreen: false
   property bool forceHidden: false
   property alias hover: hoverHandler
+  property bool hoverableWhenHidden: false
   property alias rect: container
   property alias stack: containerContent
   property alias tap: tapHandler

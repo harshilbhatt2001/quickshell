@@ -14,10 +14,10 @@ Singleton {
 	for (let device in deviceList) {
 	  let currentDevice = deviceList[device];
 	  if (currentDevice.connected == true) {
-		return false;
+		return true;
 	  }
 	}
-	return true;
+	return false;
   }
 
   function getDevicesList() {
