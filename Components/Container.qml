@@ -15,16 +15,19 @@ Item {
   property double boxRadius: 9
   property double boxWidth: 100
   readonly property double calculatedTopMargin: {
-	if (root.exclusiveToScreen) {
-	  let baseMargin = hoverableWhenHidden == true ? 8 : -4;
-	  if (Hyprland.focusedMonitor != root.exclusiveMonitor || forceHidden == true) {
-		return baseMargin - root.boxHeight - 5;
-	  } else {
-		return visibleTopMargin;
-	  }
-	} else {
+	if (!root.exclusiveToScreen) {
 	  return visibleTopMargin;
 	}
+
+	if (Hyprland.focusedMonitor == root.exclusiveMonitor) {
+	  if (!root.forceHidden) {
+		return visibleTopMargin;
+	  } else if (root.hoverableWhenHidden) {
+		return 7 - root.boxHeight - 5;
+	  }
+	}
+
+	return -4 - root.boxHeight - 5;
   }
   property Component defaultItem
   required property HyprlandMonitor exclusiveMonitor

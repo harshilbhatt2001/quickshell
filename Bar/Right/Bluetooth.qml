@@ -10,7 +10,7 @@ import "Bluetooth"
 Container {
   id: root
 
-  property bool hidden: true
+  property bool shown: false
 
   animOffset: 200
   boxColor: Colors.peach
@@ -18,7 +18,7 @@ Container {
   boxWidth: 30
   defaultItem: icon
   exclusiveToScreen: true
-  forceHidden: (hidden == true || BluetoothManager.getConnected())
+  forceHidden: !(root.shown || BluetoothManager.getConnected())
   hoverableWhenHidden: true
   state: ""
 
@@ -34,9 +34,6 @@ Container {
 	  StateChangeScript {
 		script: {
 		  root.stack.replace(icon);
-		  if (BluetoothManager.getConnected() == false) {
-			root.hidden = false;
-		  }
 		}
 	  }
 	},
@@ -52,7 +49,7 @@ Container {
 	  StateChangeScript {
 		script: {
 		  root.stack.replace(expanded);
-		  root.hidden = false;
+		  root.shown = true;
 		}
 	  }
 	}
@@ -63,7 +60,7 @@ Container {
 	  root.state = "";
 	  hoverIntervalTimer.start();
 	} else {
-	  root.hidden = false;
+	  root.shown = true;
 	  hoverIntervalTimer.start();
 	}
   }
@@ -72,13 +69,13 @@ Container {
   Timer {
 	id: hoverIntervalTimer
 
-	interval: 1000
+	interval: 500
 	repeat: false
 	running: false
 
 	onTriggered: {
-	  if (root.hover.hovered != true && root.state != "expanded") {
-		root.hidden = true;
+	  if (root.hover.hovered == false) {
+		root.shown = false;
 	  }
 	}
   }
