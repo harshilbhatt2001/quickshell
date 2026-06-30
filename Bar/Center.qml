@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Services.Mpris
 import Quickshell.Services.Notifications
 import "../Color.js" as Colors
@@ -119,6 +120,23 @@ Container {
 		  root.previousState = "notified";
 		}
 	  }
+	},
+	State {
+	  name: "logout"
+
+	  PropertyChanges {
+		root.boxHeight: 90
+		root.boxRadius: 30
+		root.boxWidth: 330
+		root.visibleTopMargin: 20
+	  }
+
+	  StateChangeScript {
+		script: {
+		  root.stack.replace(logout);
+		  root.previousState = "logout";
+		}
+	  }
 	}
   ]
 
@@ -127,6 +145,8 @@ Container {
 	  if (root.state == "notified") {
 		root.state = "notified";
 		notificationViewTimer.stop();
+	  } else if (root.state == "logout") {
+		root.state = "logout";
 	  } else if (MprisManager.getPlaying() == true) {
 		root.state = "mprisToast";
 	  } else {
@@ -134,6 +154,7 @@ Container {
 	  }
 	} else {
 	  root.state = "";
+	  FocusManager.exitRaise();
 	}
   }
   onLatestNotificationChanged: {
@@ -146,6 +167,32 @@ Container {
   }
   tap.onTapped: {
 	root.state == "hovered" ? root.state = "expanded" : undefined;
+  }
+
+  Connections {
+	function onactivated() {
+	  console.log("some", root.state);
+	}
+
+	target: root.stack
+  }
+
+  Connections {
+	function onLogoutTriggered() {
+	  if (Hyprland.focusedMonitor == root.exclusiveMonitor) {
+		root.state = "logout";
+	  }
+	}
+
+	target: IpcManager
+  }
+
+  Connections {
+	function onRaiseCancelled() {
+	  root.state = "";
+	}
+
+	target: FocusManager
   }
 
   Connections {
@@ -259,5 +306,11 @@ Container {
 		}
 	  }
 	}
+  }
+
+  Component {
+	id: logout
+
+	Logout {}
   }
 }

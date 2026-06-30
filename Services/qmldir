@@ -4,3 +4,5 @@ singleton NotificationManager 1.0 NotificationManager.qml
 singleton WorkspaceManager 1.0 WorkspaceManager.qml
 singleton BluetoothManager 1.0 BluetoothManager.qml
 singleton MprisManager 1.0 MprisManager.qml
+singleton IpcManager 1.0 IpcManager.qml
+singleton FocusManager 1.0 FocusManager.qml
