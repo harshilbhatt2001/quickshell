@@ -1,9 +1,8 @@
 import QtQuick
+import QtQuick.Effects
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Io
-import Quickshell.Wayland
-import "./Services/"
 import "Bar"
 import "Color.js" as Colors
 
@@ -19,15 +18,6 @@ Scope {
 		property double barMaxHeight: 1000
 		required property var modelData
 		property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
-
-		function refocus() {
-		  if (WlrLayershell == null)
-			return;
-		  WlrLayershell.keyboardFocus = WlrKeyboardFocus.None;
-		  Qt.callLater(() => {
-						 WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive;
-					   });
-		}
 
 		color: "transparent"
 		exclusionMode: ExclusionMode.Normal
@@ -47,26 +37,6 @@ Scope {
 		  Region {
 			item: right
 		  }
-		}
-
-		Component.onCompleted: {
-		  if (this.WlrLayershell != null) {
-			this.WlrLayershell.keyboardFocus = WlrKeyboardFocus.OnDemand;
-		  }
-		}
-
-
-		Connections {
-		  function onRaiseCancelled() {
-			win.WlrLayershell.keyboardFocus = WlrKeyboardFocus.OnDemand;
-		  }
-
-		  function onRaiseRequested() {
-			// win.WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive;
-			win.refocus();
-		  }
-
-		  target: FocusManager
 		}
 
 		anchors {
