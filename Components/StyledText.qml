@@ -8,6 +8,6 @@ Text {
   font {
 	family: "FiraMono Nerd Font"
 	pointSize: 12
-	weight: 600
+	weight: 800
   }
 }
