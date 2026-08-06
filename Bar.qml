@@ -3,7 +3,7 @@ import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import "Bar"
+import "./Bar"
 import "Color.js" as Colors
 
 Scope {
@@ -27,15 +27,7 @@ Scope {
 
 		mask: Region {
 		  Region {
-			item: left
-		  }
-
-		  Region {
 			item: center
-		  }
-
-		  Region {
-			item: right
 		  }
 		}
 
@@ -51,47 +43,35 @@ Scope {
 			topMargin: 3
 		  }
 
-		  Row {
-			id: left
-
-			height: childrenRect.height
-
+		  RowLayout {
 			anchors {
 			  left: parent.left
-			  leftMargin: 7
-			}
-
-			Left {
-			  monitor: win.monitor
-			}
-		  }
-
-		  Row {
-			id: center
-
-			height: childrenRect.height
-
-			anchors {
-			  horizontalCenter: parent.horizontalCenter
-			}
-
-			Center {
-			  monitor: win.monitor
-			}
-		  }
-
-		  Row {
-			id: right
-
-			height: childrenRect.height
-
-			anchors {
 			  right: parent.right
-			  rightMargin: 7
+			  top: parent.top
 			}
 
-			Right {
-			  monitor: win.monitor
+			Row {
+			  id: left
+			}
+
+			Item {
+			  Layout.fillWidth: true
+			}
+
+			Row {
+			  id: center
+
+			  Time {
+				monitor: win.monitor
+			  }
+			}
+
+			Item {
+			  Layout.fillWidth: true
+			}
+
+			Row {
+			  id: right
 			}
 		  }
 		}

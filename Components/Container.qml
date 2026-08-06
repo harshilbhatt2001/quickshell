@@ -35,6 +35,7 @@ Item {
   property bool forceHidden: false
   property alias hover: hoverHandler
   property bool hoverableWhenHidden: false
+  property bool hovered: false
   property alias rect: container
   property alias stack: containerContent
   property alias tap: tapHandler
@@ -79,6 +80,14 @@ Item {
 
   HoverHandler {
 	id: hoverHandler
+
+	onHoveredChanged: {
+	  if (hoverHandler.hovered == true) {
+		root.hovered = true;
+	  } else {
+		root.hovered = false;
+	  }
+	}
   }
 
   TapHandler {
@@ -89,10 +98,10 @@ Item {
 	anchors.fill: container
 	blur: 30
 	color: Colors.mantle
-	offset.x: 7
-	offset.y: 3
+	offset.x: 5
+	offset.y: 2
 	radius: container.radius
-	spread: 10
+	spread: 5
   }
 
   Rectangle {
