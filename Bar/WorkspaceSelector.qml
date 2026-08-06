@@ -1,5 +1,6 @@
+pragma ComponentBehavior: Bound
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 
@@ -10,32 +11,58 @@ import "../Services/"
 Container {
   id: root
 
+  property double barHeight: 25
   required property HyprlandMonitor monitor
+  property double rowLeftMargin: 5
+  property double workspaceButtonSpacing: 4
+  property double workspaceCount: WorkspaceManager.getNumberOfWorkspaces(monitor)
+  property double workspaceWidth: 17
 
-  boxHeight: 25
+  boxHeight: barHeight
+  boxRadius: 8
+  boxWidth: (2 * rowLeftMargin) + (workspaceCount * workspaceWidth) + ((workspaceCount - 1)
+																	   * workspaceButtonSpacing)
   exclusiveMonitor: monitor
 
-  Row {
-	spacing: 3
+  RowLayout {
+	spacing: root.workspaceButtonSpacing
+
+	anchors {
+	  bottom: parent.bottom
+	  left: parent.left
+	  leftMargin: root.rowLeftMargin
+	  top: parent.top
+	}
 
 	Repeater {
 	  delegate: workspaceButton
+	  delegateModelAccess: DelegateModel.ReadOnly
 	  model: WorkspaceManager.getWorkspacesForMonitor(root.exclusiveMonitor)
-		delegateModelAccess: DelegateModel.ReadOnly
 	}
 
 	Component {
 	  id: workspaceButton
 
 	  Item {
-		required property var modelData
+		id: buttonRoot
 
-		height: 10
-		width: 10
+		required property var modelData
+		property double stateInt: WorkspaceManager.getWorkspaceStateIndex(modelData)
+		property variant workspaceColors: [Colors.lavender, Colors.overlay2, Colors.surface2]
+		property string workspaceId: modelData.id
+
+		Layout.alignment: Qt.AlignLeft
+		height: root.barHeight - 7
+		implicitWidth: root.workspaceWidth
 
 		Rectangle {
 		  anchors.fill: parent
-		  color: "red"
+		  color: buttonRoot.workspaceColors[buttonRoot.stateInt]
+		  radius: 4
+
+		  CenteredText {
+			text: buttonRoot.modelData.id
+		  }
 		}
 	  }
 	}
