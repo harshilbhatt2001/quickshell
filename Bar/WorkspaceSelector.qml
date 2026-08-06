@@ -24,6 +24,18 @@ Container {
 																	   * workspaceButtonSpacing)
   exclusiveMonitor: monitor
 
+  states: [
+	State {
+	  name: "hovered"
+	  when: root.hovered
+
+	  PropertyChanges {
+		root.barHeight: 30
+		root.workspaceWidth: 25
+	  }
+	}
+  ]
+
   RowLayout {
 	spacing: root.workspaceButtonSpacing
 
@@ -54,6 +66,12 @@ Container {
 		Layout.alignment: Qt.AlignLeft
 		height: root.barHeight - 7
 		implicitWidth: root.workspaceWidth
+
+		TapHandler {
+		  id: tapHandler
+
+		  onTapped: WorkspaceManager.activateWorkspaceById(buttonRoot.modelData.id)
+		}
 
 		Rectangle {
 		  anchors.fill: parent
