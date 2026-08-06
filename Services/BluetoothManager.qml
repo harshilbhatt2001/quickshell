@@ -20,6 +20,17 @@ Singleton {
 	return false;
   }
 
+  function getConnectedDevicesList() {
+	let devicesList = getDevicesList();
+	let connectedList = [];
+	for (let device of devicesList) {
+	  if (device.connected == true) {
+		connectedList.push(device);
+	  }
+	}
+	return connectedList;
+  }
+
   function getDevicesList() {
 	return root.defaultAdapter.devices.values;
   }
@@ -40,30 +51,5 @@ Singleton {
 	};
 
 	return icons[name] || "󰾰";
-  }
-
-  function pairTrustConnect(device) {
-	device.pair();
-	device.trusted = true;
-	device.connect();
-  }
-
-  function toggleDiscover() {
-	if (defaultAdapter.discovering == true) {
-	  defaultAdapter.discovering = false;
-	} else {
-	  defaultAdapter.discovering = true;
-	  discoveringTimeout.running = true;
-	}
-  }
-
-  Timer {
-	id: discoveringTimeout
-
-	interval: 15000
-	repeat: false
-	running: false
-
-	onTriggered: defaultAdapter.discovering = false
   }
 }
