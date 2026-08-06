@@ -51,47 +51,52 @@ Scope {
 			topMargin: 3
 		  }
 
-		  RowLayout {
+		  anchors {
+			left: parent.left
+			leftMargin: 3
+			right: parent.right
+			rightMargin: 3
+			top: parent.top
+		  }
+
+		  Row {
+			id: left
+
 			anchors {
 			  left: parent.left
-			  leftMargin: 3
-			  right: parent.right
-			  rightMargin: 3
 			  top: parent.top
 			}
 
-			Row {
-			  id: left
+			WorkspaceSelector {
+			  monitor: win.monitor
+			}
+		  }
 
-			  Layout.alignment: Qt.AlignTop
+		  Row {
+			id: center
 
-			  WorkspaceSelector {
-				monitor: win.monitor
-			  }
+			anchors {
+			  horizontalCenter: parent.horizontalCenter
+			  top: parent.top
 			}
 
-			Item {
-			  Layout.fillWidth: true
+			Time {
+			  monitor: win.monitor
+			}
+		  }
+
+		  Row {
+			id: right
+
+			Layout.alignment: Qt.AlignTop
+
+			anchors {
+			  right: parent.right
+			  top: parent.top
 			}
 
-			Row {
-			  id: center
-
-			  Layout.alignment: Qt.AlignTop
-
-			  Time {
-				monitor: win.monitor
-			  }
-			}
-
-			Item {
-			  Layout.fillWidth: true
-			}
-
-			Row {
-			  id: right
-
-			  Layout.alignment: Qt.AlignTop
+			Bluetooth {
+			  monitor: win.monitor
 			}
 		  }
 		}
