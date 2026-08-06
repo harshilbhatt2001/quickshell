@@ -22,6 +22,7 @@ Container {
   boxRadius: 8
   boxWidth: (2 * rowLeftMargin) + (workspaceCount * workspaceWidth) + ((workspaceCount - 1)
 																	   * workspaceButtonSpacing)
+  defaultItem: placeholder
   exclusiveMonitor: monitor
 
   states: [
@@ -31,10 +32,16 @@ Container {
 
 	  PropertyChanges {
 		root.barHeight: 30
-		root.workspaceWidth: 25
+		root.workspaceWidth: 20
 	  }
 	}
   ]
+
+  Component {
+	id: placeholder
+
+	Item {}
+  }
 
   RowLayout {
 	spacing: root.workspaceButtonSpacing
@@ -64,8 +71,21 @@ Container {
 		property string workspaceId: modelData.id
 
 		Layout.alignment: Qt.AlignLeft
-		height: root.barHeight - 7
+		implicitHeight: root.barHeight - 7
 		implicitWidth: root.workspaceWidth
+
+		Behavior on implicitHeight {
+		  SpringAnimation {
+			damping: 0.3
+			spring: 4
+		  }
+		}
+		Behavior on implicitWidth {
+		  SpringAnimation {
+			damping: 0.3
+			spring: 4
+		  }
+		}
 
 		TapHandler {
 		  id: tapHandler
