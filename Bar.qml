@@ -27,7 +27,15 @@ Scope {
 
 		mask: Region {
 		  Region {
+			item: left
+		  }
+
+		  Region {
 			item: center
+		  }
+
+		  Region {
+			item: right
 		  }
 		}
 
@@ -46,12 +54,20 @@ Scope {
 		  RowLayout {
 			anchors {
 			  left: parent.left
+			  leftMargin: 3
 			  right: parent.right
+			  rightMargin: 3
 			  top: parent.top
 			}
 
 			Row {
 			  id: left
+
+			  Layout.alignment: Qt.AlignTop
+
+			  WorkspaceSelector {
+				monitor: win.monitor
+			  }
 			}
 
 			Item {
@@ -60,6 +76,8 @@ Scope {
 
 			Row {
 			  id: center
+
+			  Layout.alignment: Qt.AlignTop
 
 			  Time {
 				monitor: win.monitor
@@ -72,6 +90,8 @@ Scope {
 
 			Row {
 			  id: right
+
+			  Layout.alignment: Qt.AlignTop
 			}
 		  }
 		}
