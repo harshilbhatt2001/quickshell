@@ -15,6 +15,12 @@ Row {
 
   required property HyprlandMonitor monitor
 
+  spacing: 10
+
+  Battery {
+	exclusiveMonitor: root.monitor
+  }
+
   Bluetooth {
 	exclusiveMonitor: root.monitor
   }
