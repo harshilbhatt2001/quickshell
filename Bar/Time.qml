@@ -24,7 +24,7 @@ Container {
 	  PropertyChanges {
 		root.boxHeight: 32
 		root.boxRadius: 12
-		root.boxWidth: 110
+		root.boxWidth: 107
 	  }
 	}
   ]
