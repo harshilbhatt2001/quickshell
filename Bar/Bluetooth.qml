@@ -11,8 +11,8 @@ import "../Services/"
 Container {
   id: root
 
-  property double devicePlaqeuSpacing
-  property double devicePlaqueHeight
+  property double devicePlaqueHeight: 60
+  property double devicePlaqueSpacing: 4
   required property HyprlandMonitor monitor
   property bool opened: false
 
@@ -50,7 +50,8 @@ Container {
 	  when: root.opened == true && root.hovered == true
 
 	  PropertyChanges {
-		root.boxHeight: 300
+		root.boxHeight: (root.devicePlaqueHeight * BluetoothManager.getConnectedDevicesList().length) + (
+						  root.devicePlaqueSpacing * (BluetoothManager.getConnectedDevicesList().length + 1))
 		root.boxRadius: 12
 		root.boxWidth: 350
 	  }
@@ -95,8 +96,8 @@ Container {
 	  id: deviceListRoot
 
 	  property string component: "deviceList"
-	  property double plaqueHeight: 60
-	  property double plaqueSpacing: 4
+	  property double plaqueHeight: root.devicePlaqueHeight
+	  property double plaqueSpacing: root.devicePlaqueSpacing
 
 	  spacing: plaqueSpacing
 
