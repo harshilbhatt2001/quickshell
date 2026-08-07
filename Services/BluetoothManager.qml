@@ -31,6 +31,17 @@ Singleton {
 	return connectedList;
   }
 
+  function getDeviceText(device) {
+	let deviceName = device.deviceName;
+
+	let deviceIcon = getIcon(device.icon);
+
+	return {
+	  "icon": deviceIcon,
+	  "name": deviceName
+	};
+  }
+
   function getDevicesList() {
 	return root.defaultAdapter.devices.values;
   }
