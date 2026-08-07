@@ -125,6 +125,10 @@ Scope {
 		  Bluetooth {
 			monitor: win.monitor
 		  }
+
+		  Battery {
+			monitor: win.monitor
+		  }
 		}
 	  }
 	}
