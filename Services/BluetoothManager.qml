@@ -33,12 +33,23 @@ Singleton {
 
   function getDeviceText(device) {
 	let deviceName = device.deviceName;
-
 	let deviceIcon = getIcon(device.icon);
+	let deviceMac = device.address;
+	let hasBattery = device.batteryAvailable;
+	let deviceBattery = deviceIcon;
+	let deviceBatteryRaw = 0;
+	if (hasBattery) {
+	  deviceBattery = device.battery * 100;
+	  deviceBatteryRaw = device.battery;
+	}
 
 	return {
 	  "icon": deviceIcon,
-	  "name": deviceName
+	  "name": deviceName,
+	  "mac": deviceMac,
+	  "hasBattery": hasBattery,
+	  "battery": deviceBattery,
+	  "batteryRaw": deviceBatteryRaw
 	};
   }
 

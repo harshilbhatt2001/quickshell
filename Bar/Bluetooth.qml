@@ -121,28 +121,77 @@ Container {
 			rightMargin: devicePlaqueRoot.margin
 		  }
 
-		  Item {
-			anchors.fill: parent
+		  RowLayout {
+			id: deviceInfoRow
+
+			property double margin: 7
+
+			spacing: margin * 2
+
+			anchors {
+			  fill: parent
+			  leftMargin: margin
+			}
 
 			Rectangle {
 			  id: iconContainer
 
-			  property double margin: 7
+			  property double boxRadius: 4
 
 			  color: Colors.text
-			  implicitWidth: deviceListRoot.plaqueHeight - (margin * 2)
-			  radius: 4
+			  implicitHeight: deviceListRoot.plaqueHeight - (deviceInfoRow.margin * 2)
+			  implicitWidth: deviceListRoot.plaqueHeight - (deviceInfoRow.margin * 2)
+			  radius: boxRadius
 
-			  anchors {
-				bottom: parent.bottom
-				left: parent.left
-				margins: iconContainer.margin
-				top: parent.top
+			  Rectangle {
+				id: batteryIndicator
+
+				color: Colors.green
+				implicitHeight: (deviceListRoot.plaqueHeight - (deviceInfoRow.margin * 2))
+								* devicePlaqueRoot.deviceText["batteryRaw"]
+				radius: iconContainer.boxRadius
+
+				anchors {
+				  bottom: parent.bottom
+				  left: parent.left
+				  right: parent.right
+				}
+			  }
+
+			  HoverHandler {
+				id: batteryHoverHandler
+
+				onHoveredChanged: {
+				  if (batteryHoverHandler.hovered == true) {
+					batteryText.text = devicePlaqueRoot.deviceText["battery"];
+				  } else {
+					batteryText.text = devicePlaqueRoot.deviceText["icon"];
+				  }
+				}
 			  }
 
 			  CenteredText {
+				id: batteryText
+
 				fontSize: 17
 				text: devicePlaqueRoot.deviceText["icon"]
+			  }
+			}
+
+			Column {
+			  Layout.alignment: Qt.AlignVCenter
+			  Layout.fillWidth: true
+
+			  StyledText {
+				color: Colors.text
+				fontSize: 14
+				text: devicePlaqueRoot.deviceText["name"]
+			  }
+
+			  StyledText {
+				color: Colors.subtext1
+				fontSize: 10
+				text: devicePlaqueRoot.deviceText["mac"]
 			  }
 			}
 		  }
