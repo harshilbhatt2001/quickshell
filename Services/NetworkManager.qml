@@ -8,20 +8,70 @@ Singleton {
 
   property NetworkDevice defaultAdapter: Networking.devices.values[0]
 
-  function getConnectivity() {
-	if (Networking.connectivity == NetworkConnectivity.Full) {
-	  return 0;
-	  // if ethernet hide ts (return 2)
-	} else if (Networking.connectivity == NetworkConnectivity.Limited || Networking.connectivity
-			   == NetworkConnectivity.Portal) {
-	  return 1;
-	} else {
-	  return 2;
+  function getConnectedNetworks(networksArr) {
+	let connectedNetworks = [];
+
+	for (let network of networksArr) {
+	  if (network.state == ConnectionState.Connected) {
+		connectedNetworks.push(network);
+	  }
 	}
+	return connectedNetworks;
   }
 
-  function getIcon() {
-	let state = getConnectivity();
-	let iconArr = [""];
+  function getNetworkDetails(adapter) {
+	let networksArr = adapter.networks.values;
+	let connectedNetworks = getConnectedNetworks(networksArr);
+	let deviceWifi = isDeviceWifi(adapter);
+
+	let primaryNetwork = connectedNetworks[0];
+
+	let networkName = primaryNetwork.name;
+	let networkStrength = primaryNetwork.signalStrength;
+
+	let networkIcon = getWifiIcon(networkStrength);
+
+	let outputDict = {
+	  "adapterName": adapter.name,
+	  "adapterConnected": adapter.connected,
+	  "adapterIsWifi": deviceWifi,
+	  "networkName": networkName,
+	  "networkStrength": networkStrength,
+	  "icon": networkIcon
+	};
+	return outputDict;
+  }
+
+  function getWifiIcon(strength) {
+	let iconArr = ["󰤟", "󰤢", "󰤥", "󰤨"];
+	let strengthIndex = Math.ceil(strength * iconArr.length);
+	return iconArr[strengthIndex - 1];
+  }
+
+	function isConnectedAndWifi() {
+		let isConnected = defaultAdapter.connected
+		let isWifi = isDeviceWifi(defaultAdapter)
+		return isConnected && isWifi
+	}
+
+  function getWifiText() {
+	let info = getNetworkDetails(defaultAdapter);
+
+	let adapter = info["adapterName"];
+	let name = info["networkName"];
+
+	let finalString = adapter + " - " + name;
+	return finalString;
+  }
+
+  function isDeviceWifi(adapter) {
+	if (adapter.type == DeviceType.Wifi) {
+	  return true;
+	} else if (adapter.type == DeviceType.Wired) {
+	  return false;
+	} else {
+	  console.log(adapter.type);
+	  return false;
+	}
   }
 }
