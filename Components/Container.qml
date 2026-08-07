@@ -94,16 +94,6 @@ Item {
 	id: tapHandler
   }
 
-  RectangularShadow {
-	anchors.fill: container
-	blur: 30
-	color: Colors.mantle
-	offset.x: 5
-	offset.y: 2
-	radius: container.radius
-	spread: 5
-  }
-
   Rectangle {
 	id: container
 

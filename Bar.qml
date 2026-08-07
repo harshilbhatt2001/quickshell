@@ -8,96 +8,122 @@ import "Color.js" as Colors
 
 Scope {
   Variants {
+	id: panelDelegate
+
+	delegate: panelWindow
 	model: Quickshell.screens
+  }
 
-	delegate: Component {
-	  PanelWindow {
-		id: win
+  Component {
+	id: panelWindow
 
-		property double barExclusionZone: 15
-		property double barMaxHeight: 1000
-		required property var modelData
-		property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
+	PanelWindow {
+	  id: win
 
-		color: "transparent"
-		exclusionMode: ExclusionMode.Normal
-		exclusiveZone: barExclusionZone
-		implicitHeight: barMaxHeight
-		screen: modelData
+	  property double barExclusionZone: 15
+	  property double barMaxHeight: 1000
+	  required property var modelData
+	  property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
 
-		mask: Region {
-		  Region {
-			item: left
-		  }
+	  color: "transparent"
+	  exclusionMode: ExclusionMode.Normal
+	  exclusiveZone: barExclusionZone
+	  implicitHeight: barMaxHeight
+	  mask: maskRegion
+	  screen: modelData
 
-		  Region {
-			item: center
-		  }
+	  Region {
+		id: maskRegion
 
-		  Region {
-			item: right
-		  }
+		Region {
+		  item: left
+		}
+
+		Region {
+		  item: center
+		}
+
+		Region {
+		  item: right
+		}
+	  }
+
+	  anchors {
+		left: true
+		right: true
+		top: true
+	  }
+
+	  MultiEffect {
+		anchors.fill: rowContainer
+		shadowBlur: 1.5
+		shadowColor: Colors.mantle
+		shadowEnabled: true
+		shadowHorizontalOffset: 5
+		shadowOpacity: 1
+		shadowVerticalOffset: 3
+		source: rowContainer
+	  }
+
+	  Item {
+		id: rowContainer
+
+		anchors {
+		  fill: parent
+		  topMargin: 3
 		}
 
 		anchors {
-		  left: true
-		  right: true
-		  top: true
+		  left: parent.left
+		  leftMargin: 3
+		  right: parent.right
+		  rightMargin: 3
+		  top: parent.top
 		}
 
-		Item {
-		  anchors {
-			fill: parent
-			topMargin: 3
-		  }
+		Row {
+		  id: left
 
 		  anchors {
 			left: parent.left
-			leftMargin: 3
-			right: parent.right
-			rightMargin: 3
 			top: parent.top
 		  }
 
-		  Row {
-			id: left
+		  WorkspaceSelector {
+			monitor: win.monitor
+		  }
+		}
 
-			anchors {
-			  left: parent.left
-			  top: parent.top
-			}
+		Row {
+		  id: center
 
-			WorkspaceSelector {
-			  monitor: win.monitor
-			}
+		  anchors {
+			horizontalCenter: parent.horizontalCenter
+			top: parent.top
 		  }
 
-		  Row {
-			id: center
+		  Time {
+			monitor: win.monitor
+		  }
+		}
 
-			anchors {
-			  horizontalCenter: parent.horizontalCenter
-			  top: parent.top
-			}
+		Row {
+		  id: right
 
-			Time {
-			  monitor: win.monitor
-			}
+		  Layout.alignment: Qt.AlignTop
+		  spacing: 5
+
+		  anchors {
+			right: parent.right
+			top: parent.top
 		  }
 
-		  Row {
-			id: right
+		  Network {
+			monitor: win.monitor
+		  }
 
-			Layout.alignment: Qt.AlignTop
-
-			anchors {
-			  right: parent.right
-			  top: parent.top
-			}
-
-			Bluetooth {
-			  monitor: win.monitor
-			}
+		  Bluetooth {
+			monitor: win.monitor
 		  }
 		}
 	  }
