@@ -27,6 +27,16 @@ Container {
 
   states: [
 	State {
+	  name: "closed"
+	  when: root.hovered == false && root.opened == false
+
+	  PropertyChanges {
+		root.boxHeight: 25
+		root.boxRadius: 9
+		root.boxWidth: 33
+	  }
+	},
+	State {
 	  name: "hovered"
 	  when: root.hovered == true && root.opened == false
 
