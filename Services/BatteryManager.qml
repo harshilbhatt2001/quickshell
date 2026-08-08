@@ -8,8 +8,6 @@ import "../Color.js" as Colors
 Singleton {
   id: root
 
-  property bool batteryInUse: root.batteryPresent && root.batteryLaptop
-  property bool batteryLaptop: root.mainBattery.isLaptopBattery
   property double batteryPercentage: root.mainBattery.percentage
   property bool batteryPresent: root.mainBattery.ready
   property UPowerDevice mainBattery: UPower.displayDevice
@@ -69,7 +67,7 @@ Singleton {
 	let finalString = "harging at " + rate + "W";
 	if (rate == 0) {
 	  finalString = "Battery Idle";
-	} else if (rate < 0) {
+	} else if (rate <= 0 || mainBattery.state == UPowerDeviceState.Charging) {
 	  finalString = "C" + finalString;
 	} else {
 	  finalString = "Disc" + finalString;
