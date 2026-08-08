@@ -5,6 +5,7 @@ Text {
   id: root
 
   property double fontSize: 12
+  property double fontWeight: 8
   property bool propo: false
 
   color: Colors.base
@@ -13,6 +14,6 @@ Text {
   font {
 	family: root.propo == true ? "FiraMono Nerd Font Propo" : "FiraMono Nerd Font"
 	pointSize: fontSize
-	weight: 800
+	weight: root.fontWeight * 100
   }
 }
