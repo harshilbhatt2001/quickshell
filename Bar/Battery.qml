@@ -20,7 +20,7 @@ Container {
   boxRadius: radius
   defaultItem: icon
   exclusiveMonitor: root.monitor
-  forceHidden: !BatteryManager.batteryLaptop
+  forceHidden: !BatteryManager.mainBattery.isLaptopBattery
 
   states: [
 	State {
