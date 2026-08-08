@@ -51,7 +51,7 @@ Container {
 
 	  PropertyChanges {
 		root.boxHeight: (root.devicePlaqueHeight * BluetoothManager.getConnectedDevicesList().length) + (
-						  root.devicePlaqueSpacing * (BluetoothManager.getConnectedDevicesList().length + 1))
+						  root.devicePlaqueSpacing * (BluetoothManager.getConnectedDevicesList().length + 1)) + 2
 		root.boxRadius: 12
 		root.boxWidth: 350
 	  }
