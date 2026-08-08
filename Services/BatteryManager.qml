@@ -18,7 +18,9 @@ Singleton {
 	let criticalLevel = 20;
 	let batteryPercentage = getBatteryPercentage(mainBattery);
 
-	if (mainBattery.state == UPowerDeviceState.Charging) {
+	if (mainBattery.state == UPowerDeviceState.FullyCharged) {
+	  return Colors.sky;
+	} else if (mainBattery.state == UPowerDeviceState.Charging) {
 	  return Colors.mauve;
 	} else if (mainBattery.state == UPowerDeviceState.PendingCharge | mainBattery.state
 			   == UPowerDeviceState.PendingDischarge) {
@@ -61,28 +63,99 @@ Singleton {
 	return icon + " " + percentage + "%";
   }
 
+  function getChargingRateFormat() {
+	let rate = mainBattery.changeRate.toFixed(1);
+
+	let finalString = "harging at " + rate + "W";
+	if (rate == 0) {
+	  finalString = "Battery Idle";
+	} else if (rate < 0) {
+	  finalString = "C" + finalString;
+	} else {
+	  finalString = "Disc" + finalString;
+	}
+	return finalString;
+  }
+
   function getMainBatteryInfo() {
 	let battery = UPower.devices.values[0];
 	let batteryState = battery.state;
 	let batteryName = getBatteryName(battery);
-	let time = 0;
-	let timeString = "";
-	let timeToEmpty = battery.timeToEmpty;
-	if (timeToEmpty == 0) {
-	  timeString = "full";
-	  time = battery.timeToFull;
-	} else {
-	  timeString = "empty";
-	  time = timeToEmpty;
-	}
+	let time = getTimeFormat();
 	return {
 	  "name": batteryName,
 	  "charge": battery.percentage,
-	  "energy": battery.energy,
-	  "capacity": battery.energyCapacity,
-	  "time": time,
-	  "timeString": timeString,
+	  "energy": battery.energy.toFixed(1),
+	  "capacity": battery.energyCapacity.toFixed(1),
 	  "health": battery.healthPercentage
+	};
+  }
+
+  function getTimeFormat() {
+	let state = mainBattery.state;
+	let finalString = "";
+	if (state == UPowerDeviceState.FullyCharged) {
+	  finalString += "Battery Full";
+	} else if (state == UPowerDeviceState.Charging) {
+	  let time = mainBattery.timeToFull;
+	  if (time == 0) {
+		return "Getting Time...";
+	  } else {
+		let timeArr = secondsToTime(time);
+		// If more than 1 hour
+		if (timeArr.hours >= 1 || timeArr.hourNeedsIncrement == 1) {
+		  finalString += timeArr.Hours + " Hours ";
+		  // If minutes not 0
+		  if (timeArr.minutesRounded > 1) {
+			finalString += timeArr.minutesRounded + " Minutes";
+		  }
+		} else {
+		  finalString += timeArr.minutes + " Minutes ";
+		  finalString += timeArr.seconds + " Seconds";
+		}
+	  }
+	  finalString += " Until Full";
+	} else if (state == UPowerDeviceState.Discharging) {
+	  let time = mainBattery.timeToEmpty;
+	  if (time == 0) {
+		return "Getting Time...";
+	  } else {
+		let timeArr = secondsToTime(time);
+		// If more than 1 hour
+		if (timeArr.hours >= 1 || timeArr.hourNeedsIncrement == 1) {
+		  finalString += timeArr.hours + " Hours ";
+		  // If minutes not 0
+		  if (timeArr.minutesRounded > 1) {
+			finalString += timeArr.minutesRounded + " Minutes";
+		  }
+		} else {
+		  finalString += timeArr.minutes + " Minutes ";
+		  finalString += timeArr.seconds + " Seconds";
+		}
+	  }
+	  finalString += " Remaining";
+	} else {
+	  finalString += "Getting Time...";
+	}
+	return finalString;
+  }
+
+  function secondsToTime(totalSeconds) {
+	totalSeconds = Math.max(0, Number(totalSeconds));
+
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const seconds = Math.floor(totalSeconds % 60);
+
+	const roundedMinutes = minutes + (seconds >= 30 ? 1 : 0);
+	const hourNeedsIncrement = roundedMinutes === 60;
+
+	return {
+	  hours,
+	  minutes,
+	  seconds,
+	  minutesRounded: hourNeedsIncrement ? 0 : roundedMinutes,
+	  hourNeedsIncrement
 	};
   }
 }

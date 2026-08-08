@@ -17,9 +17,7 @@ Container {
   property double radius: 9
 
   boxColor: Colors.green
-  boxHeight: 25
   boxRadius: radius
-  boxWidth: 55
   defaultItem: icon
   exclusiveMonitor: root.monitor
 
@@ -30,8 +28,8 @@ Container {
 
 	  PropertyChanges {
 		root.boxHeight: 25
-		root.boxRadius: 9
-		root.boxWidth: 55
+		root.boxRadius: root.radius
+		root.boxWidth: 60
 	  }
 	},
 	State {
@@ -40,7 +38,7 @@ Container {
 
 	  PropertyChanges {
 		root.boxHeight: 28
-		root.boxWidth: 60
+		root.boxWidth: 64
 	  }
 	},
 	State {
@@ -50,7 +48,7 @@ Container {
 	  PropertyChanges {
 		root.boxHeight: root.batteryDisplayHeight
 		root.boxRadius: 12
-		root.boxWidth: 350
+		root.boxWidth: 450
 	  }
 
 	  StateChangeScript {
@@ -77,14 +75,7 @@ Container {
 	id: icon
 
 	Item {
-	  MidpointGradient {
-		anchors.fill: parent
-		angle: -45
-		blur: 0.6
-		color: BatteryManager.getBatteryColor()
-		midpoint: 0.55
-		radius: radius
-	  }
+	  BatteryGradient {}
 
 	  CenteredText {
 		property string component: "icon"
@@ -103,6 +94,8 @@ Container {
 
 	  property double innerMargin: 5
 	  property double outerMargin: 6
+
+	  BatteryGradient {}
 
 	  Rectangle {
 		id: batteryBackground
@@ -156,18 +149,38 @@ Container {
 
 			StyledText {
 			  color: Colors.text
-			  fontSize: 13
+			  fontSize: 14
 			  text: "Battery - " + batColumn.batInfo["name"]
 			}
 
 			StyledText {
-			  color: Colors.text
-			  fontSize: 13
-			  text: batColumn.batInfo["energy"] + " / " + batColumn.batInfo["capacity"] + "Wh"
+			  color: Colors.subtext1
+			  fontSize: 12
+			  fontWeight: 5
+			  text: batColumn.batInfo["energy"] + "/" + batColumn.batInfo["capacity"] + "Wh - "
+			  + BatteryManager.getChargingRateFormat()
+			}
+
+			StyledText {
+			  property var timeInfo: batColumn.batInfo["time"]
+
+			  color: Colors.subtext1
+			  fontSize: 12
+			  fontWeight: 5
+			  text: BatteryManager.getTimeFormat()
 			}
 		  }
 		}
 	  }
 	}
+  }
+
+  component BatteryGradient: MidpointGradient {
+	anchors.fill: parent
+	angle: -45
+	blur: 0.6
+	color: BatteryManager.getBatteryColor()
+	midpoint: 0.55
+	radius: radius
   }
 }
