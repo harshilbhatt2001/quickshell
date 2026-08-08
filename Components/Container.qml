@@ -65,6 +65,46 @@ Item {
 	  spring: 4
 	}
   }
+  Behavior on implicitWidth {
+	SpringAnimation {
+	  damping: 0.3
+	  spring: 4
+	}
+  }
+
+  onForceHiddenChanged: {
+	if (root.forceHidden == true) {
+	  hideTimer.restart();
+	} else {
+	  root.implicitWidth = root.boxWidth;
+	  root.visible = true;
+	}
+  }
+
+  Timer {
+	id: hideTimer
+
+	interval: 250
+	repeat: false
+	running: false
+
+	onTriggered: {
+	  root.implicitWidth = 0;
+	  subHideTimer.restart();
+	}
+  }
+
+  Timer {
+	id: subHideTimer
+
+	interval: 200
+	repeat: false
+	running: false
+
+	onTriggered: {
+	  root.visible = false;
+	}
+  }
 
   anchors {
 	top: parent.top
