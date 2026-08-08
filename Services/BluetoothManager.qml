@@ -6,22 +6,29 @@ import Quickshell.Bluetooth
 Singleton {
   id: root
 
-  property BluetoothAdapter defaultAdapter: Bluetooth.defaultAdapter
-  property string defaultAdapterName: Bluetooth.defaultAdapter.adapterId
+  property BluetoothAdapter defaultAdapter: Bluetooth.defaultAdapter || null
+  property string defaultAdapterName: defaultAdapter ? defaultAdapter.adapterId : ""
 
   function getConnected() {
 	let deviceList = getDevicesList();
-	for (let device in deviceList) {
-	  let currentDevice = deviceList[device];
-	  if (currentDevice.connected == true) {
-		return true;
+	if (deviceList.length == 0) {
+	  return false;
+	} else {
+	  for (let device in deviceList) {
+		let currentDevice = deviceList[device];
+		if (currentDevice.connected == true) {
+		  return true;
+		}
 	  }
+	  return false;
 	}
-	return false;
   }
 
   function getConnectedDevicesList() {
 	let devicesList = getDevicesList();
+	if (!devicesList) {
+	  return [];
+	}
 	let connectedList = [];
 	for (let device of devicesList) {
 	  if (device.connected == true) {
@@ -32,6 +39,9 @@ Singleton {
   }
 
   function getDeviceText(device) {
+	if (!device) {
+	  return undefined;
+	}
 	let deviceName = device.deviceName;
 	let deviceIcon = getIcon(device.icon);
 	let deviceMac = device.address;
@@ -54,6 +64,9 @@ Singleton {
   }
 
   function getDevicesList() {
+	if (!root.defaultAdapter) {
+	  return [];
+	}
 	return root.defaultAdapter.devices.values;
   }
 

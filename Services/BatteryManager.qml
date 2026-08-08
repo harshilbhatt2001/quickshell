@@ -8,9 +8,11 @@ import "../Color.js" as Colors
 Singleton {
   id: root
 
-  property double batteryPercentage: root.mainBattery.percentage
-  property bool batteryPresent: root.mainBattery.ready
-  property UPowerDevice mainBattery: UPower.displayDevice
+  property double batteryPercentage: root.mainBattery.percentage || 0
+  property bool batteryPresent: root.mainBattery.ready || false
+  property UPowerDevice mainBattery: UPower.displayDevice || undefined
+
+
 
   function getBatteryColor() {
 	let criticalLevel = 20;
