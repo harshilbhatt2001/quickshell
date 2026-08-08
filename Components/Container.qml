@@ -59,12 +59,6 @@ Item {
 	  spring: 4
 	}
   }
-  Behavior on boxWidth {
-	SpringAnimation {
-	  damping: 0.3
-	  spring: 4
-	}
-  }
   Behavior on implicitWidth {
 	SpringAnimation {
 	  damping: 0.3
