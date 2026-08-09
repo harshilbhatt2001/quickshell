@@ -9,6 +9,8 @@ import "../Color.js" as Colors
 Item {
   id: root
 
+  property bool _fullyHidden: false
+  property bool _widthCollapsed: false
   property double animOffset: 0
   property color boxColor: Colors.surface0
   property double boxHeight: 28
@@ -44,9 +46,6 @@ Item {
   implicitHeight: boxHeight
   implicitWidth: root._widthCollapsed ? 0 : root.boxWidth
   visible: !root._fullyHidden
-
-  property bool _widthCollapsed: false
-  property bool _fullyHidden: false
 
   Behavior on anchors.topMargin {
 	animation: defaultCurve
