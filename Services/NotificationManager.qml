@@ -8,6 +8,8 @@ Singleton {
 
   property alias notif: server
 
+  signal newNotification(notificiation: Notification)
+
   function getLatestNotification() {
 	let notificationList = server.trackedNotifications.values;
 	let len = notificationList.length;
@@ -27,6 +29,7 @@ Singleton {
 
 	onNotification: notification => {
 	  notification.tracked = true;
+	  root.newNotification(notification);
 	}
   }
 }
