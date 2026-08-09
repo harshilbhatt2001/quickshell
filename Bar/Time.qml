@@ -55,14 +55,14 @@ Container {
 	  when: root.hovered == true && root.overriden == false
 
 	  PropertyChanges {
-		root.boxHeight: 32
+		root.boxHeight: MprisManager.getPlaying() == false ? 32 : root.mprisHeight
 		root.boxRadius: 12
-		root.boxWidth: 107
+		root.boxWidth: MprisManager.getPlaying() == false ? 107 : root.mprisWidth
 	  }
 
 	  StateChangeScript {
 		script: {
-		  root.stack.replace(time);
+		  root.stack.replace(MprisManager.getPlaying() == true ? mprisToast : time);
 		}
 	  }
 	},
@@ -144,7 +144,7 @@ Container {
   Timer {
 	id: mprisTimer
 
-	interval: 2000
+	interval: 3000
 	repeat: false
 	running: false
 
