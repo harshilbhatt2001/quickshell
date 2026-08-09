@@ -11,6 +11,7 @@ Singleton {
   property double batteryPercentage: root.mainBattery.percentage || 0
   property bool batteryPresent: root.mainBattery.ready || false
   property UPowerDevice mainBattery: UPower.displayDevice || undefined
+  property bool hasLaptopBattery: root.mainBattery && root.mainBattery.isLaptopBattery
 
 
 

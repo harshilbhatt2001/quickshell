@@ -42,7 +42,11 @@ Item {
   property double visibleTopMargin: 0
 
   implicitHeight: boxHeight
-  implicitWidth: boxWidth
+  implicitWidth: root._widthCollapsed ? 0 : root.boxWidth
+  visible: !root._fullyHidden
+
+  property bool _widthCollapsed: false
+  property bool _fullyHidden: false
 
   Behavior on anchors.topMargin {
 	animation: defaultCurve
@@ -70,8 +74,10 @@ Item {
 	if (root.forceHidden == true) {
 	  hideTimer.restart();
 	} else {
-	  root.implicitWidth = root.boxWidth;
-	  root.visible = true;
+	  hideTimer.stop();
+	  subHideTimer.stop();
+	  root._fullyHidden = false;
+	  root._widthCollapsed = false;
 	}
   }
 
@@ -83,7 +89,7 @@ Item {
 	running: false
 
 	onTriggered: {
-	  root.implicitWidth = 0;
+	  root._widthCollapsed = true;
 	  subHideTimer.restart();
 	}
   }
@@ -96,7 +102,7 @@ Item {
 	running: false
 
 	onTriggered: {
-	  root.visible = false;
+	  root._fullyHidden = true;
 	}
   }
 

@@ -20,7 +20,7 @@ Container {
   defaultItem: icon
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
-  forceHidden: !NetworkManager.isConnectedAndWifi()
+  forceHidden: !NetworkManager.connectedWifi
 
   states: [
 	State {

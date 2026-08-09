@@ -23,7 +23,7 @@ Container {
   defaultItem: icon
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
-  forceHidden: !(BluetoothManager.getConnected())
+  forceHidden: !BluetoothManager.anyConnected
 
   states: [
 	State {
