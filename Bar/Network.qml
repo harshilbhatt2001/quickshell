@@ -80,7 +80,7 @@ Container {
 	StyledText {
 	  horizontalAlignment: Qt.AlignCenter
 	  propo: true
-	  text: NetworkManager.getNetworkDetails(NetworkManager.defaultAdapter)["icon"]
+	  text: NetworkManager.getNetworkDetails(NetworkManager.defaultAdapter)["icon"] || "󰤭"
 	  verticalAlignment: Qt.AlignVCenter
 	}
   }

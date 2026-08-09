@@ -8,7 +8,7 @@ Singleton {
 
   property bool connectedWifi: root.defaultAdapter != null && root.defaultAdapter.connected
 							   && root.defaultAdapter.type == DeviceType.Wifi
-  property NetworkDevice defaultAdapter: Networking.devices.values[0]
+  property NetworkDevice defaultAdapter: Networking.devices.values[0] || null
 
   function getConnectedNetworks(networksArr) {
 	let connectedNetworks = [];
@@ -38,6 +38,16 @@ Singleton {
 	let deviceWifi = isDeviceWifi(adapter);
 
 	let primaryNetwork = connectedNetworks[0];
+	if (!primaryNetwork) {
+	  return {
+		"adapterName": adapter.name,
+		"adapterConnected": adapter.connected,
+		"adapterIsWifi": deviceWifi,
+		"networkName": "No Network",
+		"networkStrength": 0,
+		"icon": "󰤭"
+	  };
+	}
 
 	let networkName = primaryNetwork.name;
 	let networkStrength = primaryNetwork.signalStrength;
