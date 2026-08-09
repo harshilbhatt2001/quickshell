@@ -14,6 +14,7 @@ Container {
   required property HyprlandMonitor monitor
   property bool opened: false
 
+  animOffset: 250
   boxColor: Colors.red
   boxHeight: 25
   boxWidth: 33

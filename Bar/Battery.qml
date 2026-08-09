@@ -16,6 +16,7 @@ Container {
   property bool opened: false
   property double radius: 9
 
+	animOffset: 150
   boxColor: Colors.green
   boxRadius: radius
   defaultItem: icon
