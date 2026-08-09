@@ -16,6 +16,9 @@ Container {
 
   property Notification latestNotif
   required property HyprlandMonitor monitor
+  property bool mpris: false
+  property double mprisHeight: 60
+  property double mprisWidth: 350
   property double notificationHeight: 100
   property double notificationWidth: 350
   property bool notified: false
@@ -80,6 +83,24 @@ Container {
 		  notificationTimer.restart();
 		}
 	  }
+	},
+	State {
+	  name: "mpris"
+	  when: root.mpris == true
+
+	  PropertyChanges {
+		root.boxHeight: root.mprisHeight
+		root.boxRadius: 12
+		root.boxWidth: root.mprisWidth
+		root.visibleTopMargin: 5
+	  }
+
+	  StateChangeScript {
+		script: {
+		  root.stack.replace(mprisToast);
+		  mprisTimer.restart();
+		}
+	  }
 	}
   ]
 
@@ -97,6 +118,16 @@ Container {
 	target: NotificationManager
   }
 
+  Connections {
+	function onTrackChanged() {
+	  root.overriden = true;
+	  root.mpris = true;
+	  console.log("track changed");
+	}
+
+	target: MprisManager.defaultPlayer
+  }
+
   Timer {
 	id: notificationTimer
 
@@ -106,6 +137,19 @@ Container {
 
 	onTriggered: {
 	  root.notified = false;
+	  root.overriden = false;
+	}
+  }
+
+  Timer {
+	id: mprisTimer
+
+	interval: 2000
+	repeat: false
+	running: false
+
+	onTriggered: {
+	  root.mpris = false;
 	  root.overriden = false;
 	}
   }
@@ -186,6 +230,103 @@ Container {
 			  maximumLineCount: 2
 			  text: root.latestNotif.body
 			  wrapMode: Text.WordWrap
+			}
+		  }
+		}
+	  }
+	}
+  }
+
+  Component {
+	id: mprisToast
+
+	Item {
+	  id: mprisToastRoot
+
+	  property double innerMargin: 4
+	  property double outerMargin: 4
+	  property var trackInfo: MprisManager.getTrackInfo()
+
+	  function getInnerHeight() {
+		let fullHeight = root.mprisHeight;
+		let fullMargin = mprisToastRoot.innerMargin + mprisToastRoot.outerMargin;
+
+		return fullHeight - (fullMargin * 2);
+	  }
+
+	  Rectangle {
+		color: Colors.surface1
+		radius: 9
+
+		anchors {
+		  fill: parent
+		  margins: mprisToastRoot.outerMargin
+		}
+
+		RowLayout {
+		  Rectangle {
+			Layout.margins: mprisToastRoot.innerMargin
+			color: Colors.mauve
+			implicitHeight: mprisToastRoot.getInnerHeight()
+			implicitWidth: mprisToastRoot.getInnerHeight()
+			radius: 5
+
+			IconImage {
+			  anchors.fill: parent
+			  source: mprisToastRoot.trackInfo["albumArt"]
+			}
+		  }
+
+		  ColumnLayout {
+			property double textMargin: 1
+
+			Layout.alignment: Qt.AlignVCenter
+			Layout.fillWidth: true
+			Layout.leftMargin: 0
+			Layout.margins: mprisToastRoot.innerMargin + textMargin
+
+			StyledText {
+			  Layout.maximumWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (
+														mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
+			  color: Colors.text
+			  fontSize: 14
+			  text: mprisToastRoot.trackInfo["name"] + " - " + mprisToastRoot.trackInfo["artist"]
+			}
+
+			Item {
+			  Layout.fillHeight: true
+			  Layout.fillWidth: true
+			  Layout.maximumWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (
+														mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
+			  Layout.preferredWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (
+														  mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
+
+			  Rectangle {
+				anchors.fill: parent
+				color: Colors.overlay0
+				radius: 100
+
+				Rectangle {
+				  color: Colors.mauve
+				  implicitWidth: parent.width * mprisToastRoot.trackInfo["lengthPercent"]
+				  radius: 100
+
+				  anchors {
+					bottom: parent.bottom
+					left: parent.left
+					top: parent.top
+				  }
+				}
+
+				StyledText {
+				  text: MprisManager.getTimeString()
+
+				  anchors {
+					horizontalCenter: parent.horizontalCenter
+					verticalCenter: parent.verticalCenter
+				  }
+				}
+			  }
 			}
 		  }
 		}
