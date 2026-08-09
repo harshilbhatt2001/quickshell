@@ -1,9 +1,11 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Notifications
+import Quickshell.Widgets
 
 import "../Color.js" as Colors
 import "../Components/"
@@ -13,8 +15,9 @@ Container {
   id: root
 
   property Notification latestNotif
-  property double latestNotifId: latestNotif.id || 0
   required property HyprlandMonitor monitor
+  property double notificationHeight: 100
+  property double notificationWidth: 350
   property bool notified: false
   property bool overriden: false
 
@@ -35,6 +38,9 @@ Container {
 
 	  StateChangeScript {
 		script: {
+		  if (!root.stack.currentItem) {
+			return;
+		  }
 		  if (root.stack.currentItem.component != "time") {
 			root.stack.replace(time);
 		  }
@@ -62,15 +68,15 @@ Container {
 	  when: root.notified == true
 
 	  PropertyChanges {
-		root.boxHeight: 32
+		root.boxHeight: root.notificationHeight
 		root.boxRadius: 12
-		root.boxWidth: 200
+		root.boxWidth: root.notificationWidth
+		root.visibleTopMargin: 5
 	  }
 
 	  StateChangeScript {
 		script: {
 		  root.stack.replace(notification);
-		  console.log("notification");
 		  notificationTimer.restart();
 		}
 	  }
@@ -80,12 +86,10 @@ Container {
   Connections {
 	function onNewNotification() {
 	  notification => {
-		if (notification != root.latestNotif) {
+		if (notification.lastGeneration == false) {
 		  root.latestNotif = notification;
 		  root.overriden = true;
 		  root.notified = true;
-		} else {
-		  console.log("notif already called");
 		}
 	  };
 	}
@@ -121,12 +125,71 @@ Container {
   Component {
 	id: notification
 
-	StyledText {
-	  property string component: "notification"
+	Item {
+	  id: notificationRoot
 
-	  horizontalAlignment: Qt.AlignCenter
-	  text: root.latestNotif.summary
-	  verticalAlignment: Qt.AlignVCenter
+	  property double innerMargin: 5
+	  property double outerMargin: 6
+
+	  function getInnerHeight() {
+		let fullHeight = root.notificationHeight;
+		let fullMargin = notificationRoot.innerMargin + notificationRoot.outerMargin;
+
+		return fullHeight - (fullMargin * 2);
+	  }
+
+	  Rectangle {
+		color: Colors.surface1
+		radius: 9
+
+		anchors {
+		  fill: parent
+		  margins: notificationRoot.outerMargin
+		}
+
+		RowLayout {
+		  Rectangle {
+			Layout.margins: notificationRoot.innerMargin
+			color: Colors.mauve
+			implicitHeight: notificationRoot.getInnerHeight()
+			implicitWidth: notificationRoot.getInnerHeight()
+			radius: 5
+
+			IconImage {
+			  anchors.fill: parent
+			  anchors.margins: 10
+			  source: root.latestNotif.image
+			}
+		  }
+
+		  ColumnLayout {
+			property double textMargin: 4
+
+			Layout.alignment: Qt.AlignVCenter
+			Layout.fillWidth: true
+			Layout.leftMargin: 0
+			Layout.margins: notificationRoot.innerMargin + textMargin
+
+			StyledText {
+			  color: Colors.text
+			  fontSize: 14
+			  text: root.latestNotif.summary
+			}
+
+			StyledText {
+			  Layout.fillHeight: true
+			  Layout.maximumWidth: root.notificationWidth - ((notificationRoot.outerMargin * 2) + (
+															   notificationRoot.innerMargin * 3) + notificationRoot.getInnerHeight())
+			  color: Colors.subtext0
+			  elide: Qt.ElideRight
+			  fontWeight: 5
+			  maximumLineCount: 2
+			  text: root.latestNotif.body
+			  wrapMode: Text.WordWrap
+			}
+		  }
+		}
+	  }
 	}
   }
 }
