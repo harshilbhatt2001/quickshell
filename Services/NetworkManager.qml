@@ -6,11 +6,9 @@ import Quickshell.Networking
 Singleton {
   id: root
 
+  property bool connectedWifi: root.defaultAdapter != null && root.defaultAdapter.connected
+							   && root.defaultAdapter.type == DeviceType.Wifi
   property NetworkDevice defaultAdapter: Networking.devices.values[0]
-
-  property bool connectedWifi: root.defaultAdapter != null
-    && root.defaultAdapter.connected
-    && root.defaultAdapter.type == DeviceType.Wifi
 
   function getConnectedNetworks(networksArr) {
 	let connectedNetworks = [];
@@ -52,7 +50,8 @@ Singleton {
 	  "adapterIsWifi": deviceWifi,
 	  "networkName": networkName,
 	  "networkStrength": networkStrength,
-	  "icon": networkIcon
+	  "icon": networkIcon,
+	  "saved": primaryNetwork.known
 	};
 	return outputDict;
   }
@@ -63,10 +62,6 @@ Singleton {
 	return iconArr[strengthIndex - 1];
   }
 
-  function isConnectedAndWifi() {
-	return root.connectedWifi;
-  }
-
   function getWifiText() {
 	let info = getNetworkDetails(defaultAdapter);
 
@@ -75,6 +70,10 @@ Singleton {
 
 	let finalString = adapter + " - " + name;
 	return finalString;
+  }
+
+  function isConnectedAndWifi() {
+	return root.connectedWifi;
   }
 
   function isDeviceWifi(adapter) {

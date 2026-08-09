@@ -12,6 +12,7 @@ Container {
   id: root
 
   required property HyprlandMonitor monitor
+  property double networkDisplayHeight: 80
   property bool opened: false
 
   animOffset: 250
@@ -48,7 +49,7 @@ Container {
 	  when: root.opened == true && root.hovered == true
 
 	  PropertyChanges {
-		root.boxHeight: 28
+		root.boxHeight: root.networkDisplayHeight
 		root.boxRadius: 12
 		root.boxWidth: 350
 	  }
@@ -87,11 +88,74 @@ Container {
   Component {
 	id: wifiInfo
 
-	StyledText {
-	  horizontalAlignment: Qt.AlignCenter
-	  propo: true
-	  text: NetworkManager.getWifiText()
-	  verticalAlignment: Qt.AlignVCenter
+	Item {
+	  id: networkDisplayRoot
+
+	  property double innerMargin: 5
+	  property double outerMargin: 6
+
+	  Rectangle {
+		id: networkDisplayBg
+
+		anchors.fill: parent
+		anchors.margins: networkDisplayRoot.outerMargin
+		color: Colors.surface1
+		radius: 8
+
+		RowLayout {
+		  anchors.fill: parent
+
+		  Rectangle {
+			id: iconBox
+
+			property double iconBoxRadius: 5
+
+			Layout.fillHeight: true
+			Layout.margins: networkDisplayRoot.innerMargin
+			color: Colors.red
+			implicitWidth: root.networkDisplayHeight - (networkDisplayRoot.innerMargin * 2) - (
+							 networkDisplayRoot.outerMargin * 2)
+			radius: 5
+
+			CenteredText {
+			  fontSize: 23
+			  propo: true
+			  text: NetworkManager.getNetworkDetails(NetworkManager.defaultAdapter)["icon"]
+			}
+		  }
+
+		  Column {
+			id: networkColumn
+
+			property var networkInfo: NetworkManager.getNetworkDetails(NetworkManager.defaultAdapter)
+
+			Layout.alignment: Qt.AlignVCenter
+			Layout.fillWidth: true
+
+			StyledText {
+			  color: Colors.text
+			  fontSize: 14
+			  text: networkColumn.networkInfo["networkName"]
+			}
+
+			StyledText {
+			  color: Colors.subtext1
+			  fontSize: 12
+			  fontWeight: 5
+			  text: "Connected on: " + networkColumn.networkInfo["adapterName"]
+			}
+
+			StyledText {
+			  property var timeInfo: networkColumn.networkInfo["time"]
+
+			  color: Colors.subtext1
+			  fontSize: 12
+			  fontWeight: 5
+			  text: "Network Details " + (networkColumn.networkInfo["saved"] == true ? "Saved" : "Not Saved")
+			}
+		  }
+		}
+	  }
 	}
   }
 }
