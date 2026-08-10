@@ -142,7 +142,8 @@ Container {
 			  color: Colors.subtext1
 			  fontSize: 12
 			  fontWeight: 5
-			  text: "Connected on: " + networkColumn.networkInfo["adapterName"]
+			  text: networkColumn.networkInfo["ipAddress"] + " on "
+			  + networkColumn.networkInfo["adapterName"]
 			}
 
 			StyledText {

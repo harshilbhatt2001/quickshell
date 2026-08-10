@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Networking
 
 Singleton {
@@ -9,6 +10,7 @@ Singleton {
   property bool connectedWifi: root.defaultAdapter != null && root.defaultAdapter.connected
 							   && root.defaultAdapter.type == DeviceType.Wifi
   property NetworkDevice defaultAdapter: Networking.devices.values[0] || null
+  property string ipAddress: "0.0.0.0"
 
   function getConnectedNetworks(networksArr) {
 	let connectedNetworks = [];
@@ -61,7 +63,8 @@ Singleton {
 	  "networkName": networkName,
 	  "networkStrength": networkStrength,
 	  "icon": networkIcon,
-	  "saved": primaryNetwork.known
+	  "saved": primaryNetwork.known,
+	  "ipAddress": root.ipAddress
 	};
 	return outputDict;
   }
@@ -94,6 +97,26 @@ Singleton {
 	} else {
 	  console.log(adapter.type);
 	  return false;
+	}
+  }
+
+  function refreshIpAddress() {
+	ipProcess.running = true;
+  }
+
+  onDefaultAdapterChanged: {
+	refreshIpAddress();
+  }
+
+  Process {
+	id: ipProcess
+
+	command: ["sh", "-c", "ip -4 -o addr show dev " + root.defaultAdapter.name
+	  + " scope global | awk '{sub(\"/.*\", \"\", $4); printf $4}'"]
+	running: true
+
+	stdout: StdioCollector {
+	  onStreamFinished: root.ipAddress = this.text
 	}
   }
 }
