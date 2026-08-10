@@ -6,21 +6,59 @@ import Quickshell.Bluetooth
 Singleton {
   id: root
 
-  property BluetoothAdapter defaultAdapter: Bluetooth.defaultAdapter
-  property string defaultAdapterName: Bluetooth.defaultAdapter.adapterId
+  property BluetoothAdapter defaultAdapter: Bluetooth.defaultAdapter || null
+  property string defaultAdapterName: defaultAdapter ? defaultAdapter.adapterId : ""
+
+  property bool anyConnected: root.defaultAdapter != null
+    && root.defaultAdapter.devices.values.some(device => device.connected)
 
   function getConnected() {
-	let deviceList = getDevicesList();
-	for (let device in deviceList) {
-	  let currentDevice = deviceList[device];
-	  if (currentDevice.connected == true) {
-		return true;
+	return root.anyConnected;
+  }
+
+  function getConnectedDevicesList() {
+	let devicesList = getDevicesList();
+	if (!devicesList) {
+	  return [];
+	}
+	let connectedList = [];
+	for (let device of devicesList) {
+	  if (device.connected == true) {
+		connectedList.push(device);
 	  }
 	}
-	return false;
+	return connectedList;
+  }
+
+  function getDeviceText(device) {
+	if (!device) {
+	  return undefined;
+	}
+	let deviceName = device.deviceName;
+	let deviceIcon = getIcon(device.icon);
+	let deviceMac = device.address;
+	let hasBattery = device.batteryAvailable;
+	let deviceBattery = deviceIcon;
+	let deviceBatteryRaw = 0;
+	if (hasBattery) {
+	  deviceBattery = device.battery * 100;
+	  deviceBatteryRaw = device.battery;
+	}
+
+	return {
+	  "icon": deviceIcon,
+	  "name": deviceName,
+	  "mac": deviceMac,
+	  "hasBattery": hasBattery,
+	  "battery": deviceBattery,
+	  "batteryRaw": deviceBatteryRaw
+	};
   }
 
   function getDevicesList() {
+	if (!root.defaultAdapter) {
+	  return [];
+	}
 	return root.defaultAdapter.devices.values;
   }
 
@@ -40,30 +78,5 @@ Singleton {
 	};
 
 	return icons[name] || "󰾰";
-  }
-
-  function pairTrustConnect(device) {
-	device.pair();
-	device.trusted = true;
-	device.connect();
-  }
-
-  function toggleDiscover() {
-	if (defaultAdapter.discovering == true) {
-	  defaultAdapter.discovering = false;
-	} else {
-	  defaultAdapter.discovering = true;
-	  discoveringTimeout.running = true;
-	}
-  }
-
-  Timer {
-	id: discoveringTimeout
-
-	interval: 15000
-	repeat: false
-	running: false
-
-	onTriggered: defaultAdapter.discovering = false
   }
 }

@@ -62,6 +62,17 @@ Singleton {
 	}
   }
 
+  function getWorkspaceStateIndex(workspace) {
+	let state = getWorkspaceState(workspace);
+	if (state == "focused") {
+	  return 0;
+	} else if (state == "active") {
+	  return 1;
+	} else if (state == "inactive") {
+	  return 2;
+	}
+  }
+
   function getWorkspacesForMonitor(monitor) {
 	let allWorkspaces = getAllNumberedWorkspaces();
 	let monitorWorkspaces = [];

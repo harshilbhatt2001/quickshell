@@ -9,6 +9,8 @@ import "../Color.js" as Colors
 Item {
   id: root
 
+  property bool _fullyHidden: false
+  property bool _widthCollapsed: false
   property double animOffset: 0
   property color boxColor: Colors.surface0
   property double boxHeight: 28
@@ -35,13 +37,15 @@ Item {
   property bool forceHidden: false
   property alias hover: hoverHandler
   property bool hoverableWhenHidden: false
+  property bool hovered: false
   property alias rect: container
   property alias stack: containerContent
   property alias tap: tapHandler
   property double visibleTopMargin: 0
 
   implicitHeight: boxHeight
-  implicitWidth: boxWidth
+  implicitWidth: root._widthCollapsed ? 0 : root.boxWidth
+  visible: !root._fullyHidden
 
   Behavior on anchors.topMargin {
 	animation: defaultCurve
@@ -58,10 +62,46 @@ Item {
 	  spring: 4
 	}
   }
-  Behavior on boxWidth {
+  Behavior on implicitWidth {
 	SpringAnimation {
 	  damping: 0.3
 	  spring: 4
+	}
+  }
+
+  onForceHiddenChanged: {
+	if (root.forceHidden == true) {
+	  hideTimer.restart();
+	} else {
+	  hideTimer.stop();
+	  subHideTimer.stop();
+	  root._fullyHidden = false;
+	  root._widthCollapsed = false;
+	}
+  }
+
+  Timer {
+	id: hideTimer
+
+	interval: 250
+	repeat: false
+	running: false
+
+	onTriggered: {
+	  root._widthCollapsed = true;
+	  subHideTimer.restart();
+	}
+  }
+
+  Timer {
+	id: subHideTimer
+
+	interval: 200
+	repeat: false
+	running: false
+
+	onTriggered: {
+	  root._fullyHidden = true;
 	}
   }
 
@@ -79,20 +119,18 @@ Item {
 
   HoverHandler {
 	id: hoverHandler
+
+	onHoveredChanged: {
+	  if (hoverHandler.hovered == true) {
+		root.hovered = true;
+	  } else {
+		root.hovered = false;
+	  }
+	}
   }
 
   TapHandler {
 	id: tapHandler
-  }
-
-  RectangularShadow {
-	anchors.fill: container
-	blur: 30
-	color: Colors.mantle
-	offset.x: 7
-	offset.y: 3
-	radius: container.radius
-	spread: 10
   }
 
   Rectangle {

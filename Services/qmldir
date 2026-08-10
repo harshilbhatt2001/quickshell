@@ -5,3 +5,4 @@ singleton WorkspaceManager 1.0 WorkspaceManager.qml
 singleton BluetoothManager 1.0 BluetoothManager.qml
 singleton MprisManager 1.0 MprisManager.qml
 singleton BatteryManager 1.0 BatteryManager.qml
+singleton NetworkManager 1.0 NetworkManager.qml
