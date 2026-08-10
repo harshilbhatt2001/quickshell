@@ -16,11 +16,12 @@ Container {
   property bool opened: false
   property double radius: 9
 
-	animOffset: 150
+  animOffset: 150
   boxColor: Colors.green
   boxRadius: radius
   defaultItem: icon
   exclusiveMonitor: root.monitor
+  exclusiveToScreen: true
   forceHidden: !BatteryManager.hasLaptopBattery
 
   states: [

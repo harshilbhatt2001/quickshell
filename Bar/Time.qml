@@ -27,6 +27,7 @@ Container {
   boxColor: Colors.mauve
   defaultItem: time
   exclusiveMonitor: root.monitor
+  exclusiveToScreen: true
 
   states: [
 	State {
