@@ -22,7 +22,6 @@ Container {
   property double notificationHeight: 100
   property double notificationWidth: 350
   property bool notified: false
-  property bool overriden: false
 
   boxColor: Colors.mauve
   defaultItem: time
@@ -30,43 +29,6 @@ Container {
   exclusiveToScreen: true
 
   states: [
-	State {
-	  name: "closed"
-	  when: root.hovered == false && root.overriden == false
-
-	  PropertyChanges {
-		root.boxHeight: 28
-		root.boxRadius: 9
-		root.boxWidth: 100
-	  }
-
-	  StateChangeScript {
-		script: {
-		  if (!root.stack.currentItem) {
-			return;
-		  }
-		  if (root.stack.currentItem.component != "time") {
-			root.stack.replace(time);
-		  }
-		}
-	  }
-	},
-	State {
-	  name: "hovered"
-	  when: root.hovered == true && root.overriden == false
-
-	  PropertyChanges {
-		root.boxHeight: MprisManager.getPlaying() == false ? 32 : root.mprisHeight
-		root.boxRadius: 12
-		root.boxWidth: MprisManager.getPlaying() == false ? 107 : root.mprisWidth
-	  }
-
-	  StateChangeScript {
-		script: {
-		  root.stack.replace(MprisManager.getPlaying() == true ? mprisToast : time);
-		}
-	  }
-	},
 	State {
 	  name: "notified"
 	  when: root.notified == true
@@ -104,6 +66,16 @@ Container {
 	  }
 	}
   ]
+
+  onHoveredChanged: {
+	if (root.hovered == true && MprisManager.getPlaying() == true) {
+	  root.overriden = true;
+	  root.mpris = true;
+	} else {
+	  root.overriden = false;
+	  root.mpris = true;
+	}
+  }
 
   Connections {
 	function onNewNotification() {

@@ -14,8 +14,12 @@ Item {
   property double animOffset: 0
   property color boxColor: Colors.surface0
   property double boxHeight: 28
+  property double boxHeightOpened: 150
+  property bool boxOpened: false
   property double boxRadius: 9
+  property double boxRadiusOpened: 12
   property double boxWidth: 100
+  property double boxWidthOpened: 200
   readonly property double calculatedTopMargin: {
 	if (!root.exclusiveToScreen) {
 	  return visibleTopMargin;
@@ -38,6 +42,8 @@ Item {
   property alias hover: hoverHandler
   property bool hoverableWhenHidden: false
   property bool hovered: false
+  property Component openedItem
+  property bool overriden: false
   property alias rect: container
   property alias stack: containerContent
   property alias tap: tapHandler
@@ -50,13 +56,13 @@ Item {
   Behavior on anchors.topMargin {
 	animation: defaultCurve
   }
-  Behavior on boxHeight {
+  Behavior on boxRadius {
 	SpringAnimation {
 	  damping: 0.3
 	  spring: 4
 	}
   }
-  Behavior on boxRadius {
+  Behavior on implicitHeight {
 	SpringAnimation {
 	  damping: 0.3
 	  spring: 4
@@ -68,6 +74,56 @@ Item {
 	  spring: 4
 	}
   }
+  states: [
+	State {
+	  name: "closed"
+	  when: root.hovered == false && root.boxOpened == false && root.overriden == false
+
+	  PropertyChanges {
+		container.radius: root.boxRadius
+		root.implicitHeight: root.boxHeight
+		root.implicitWidth: root.boxWidth
+	  }
+
+	  StateChangeScript {
+		script: {
+		  stack.replace(root.defaultItem);
+		}
+	  }
+	},
+	State {
+	  name: "hovered"
+	  when: root.hovered == true && root.boxOpened == false && root.overriden == false
+
+	  PropertyChanges {
+		container.radius: root.boxRadius + 3
+		root.implicitHeight: root.boxHeight + 2
+		root.implicitWidth: root.boxWidth + 2
+	  }
+
+	  StateChangeScript {
+		script: {
+		  stack.replace(root.defaultItem);
+		}
+	  }
+	},
+	State {
+	  name: "opened"
+	  when: root.boxOpened == true && root.hovered == true && root.overriden == false
+
+	  PropertyChanges {
+		container.radius: root.boxRadiusOpened
+		root.implicitHeight: root.boxHeightOpened
+		root.implicitWidth: root.boxWidthOpened
+	  }
+
+	  StateChangeScript {
+		script: {
+		  stack.replace(root.openedItem);
+		}
+	  }
+	}
+  ]
 
   onForceHiddenChanged: {
 	if (root.forceHidden == true) {
@@ -125,12 +181,22 @@ Item {
 		root.hovered = true;
 	  } else {
 		root.hovered = false;
+		root.boxOpened = false;
+		if (root.state == "closed") {
+		  root.stack.replace(root.defaultItem);
+		}
 	  }
 	}
   }
 
   TapHandler {
 	id: tapHandler
+
+	onTapped: {
+	  if (root.openedItem) {
+		root.boxOpened = true;
+	  }
+	}
   }
 
   Rectangle {
@@ -140,6 +206,12 @@ Item {
 	clip: true
 	color: root.boxColor
 	radius: root.boxRadius
+
+	Behavior on radius {
+	  NumberAnimation {
+		duration: 300
+	  }
+	}
 
 	StackView {
 	  id: containerContent

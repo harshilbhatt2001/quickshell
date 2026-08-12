@@ -18,61 +18,16 @@ Container {
 
   animOffset: 150
   boxColor: Colors.green
+  boxHeight: 25
+  boxHeightOpened: root.batteryDisplayHeight
   boxRadius: radius
+  boxWidth: 60
+  boxWidthOpened: 410
   defaultItem: icon
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
   forceHidden: !BatteryManager.hasLaptopBattery
-
-  states: [
-	State {
-	  name: "closed"
-	  when: root.hovered == false && root.opened == false
-
-	  PropertyChanges {
-		root.boxHeight: 25
-		root.boxRadius: root.radius
-		root.boxWidth: 60
-	  }
-	},
-	State {
-	  name: "hovered"
-	  when: root.hovered == true && root.opened == false
-
-	  PropertyChanges {
-		root.boxHeight: 28
-		root.boxWidth: 64
-	  }
-	},
-	State {
-	  name: "opened"
-	  when: root.opened == true && root.hovered == true
-
-	  PropertyChanges {
-		root.boxHeight: root.batteryDisplayHeight
-		root.boxRadius: 12
-		root.boxWidth: 450
-	  }
-
-	  StateChangeScript {
-		script: {
-		  stack.replace(batteryDisplay);
-		}
-	  }
-	}
-  ]
-
-  hover.onHoveredChanged: {
-	if (hover.hovered == false) {
-	  root.opened = false;
-	  if (root.state != "icon") {
-		root.stack.replace(icon);
-	  }
-	}
-  }
-  tap.onTapped: {
-	root.opened = true;
-  }
+  openedItem: batteryDisplay
 
   Component {
 	id: icon

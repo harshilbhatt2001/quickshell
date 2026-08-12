@@ -13,66 +13,18 @@ Container {
 
   required property HyprlandMonitor monitor
   property double networkDisplayHeight: 80
-  property bool opened: false
 
   animOffset: 250
   boxColor: Colors.red
   boxHeight: 25
+  boxHeightOpened: root.networkDisplayHeight
   boxWidth: 33
+  boxWidthOpened: 350
   defaultItem: icon
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
   forceHidden: !NetworkManager.connectedWifi
-
-  states: [
-	State {
-	  name: "closed"
-	  when: root.hovered == false && root.opened == false
-
-	  PropertyChanges {
-		root.boxHeight: 25
-		root.boxRadius: 9
-		root.boxWidth: 33
-	  }
-	},
-	State {
-	  name: "hovered"
-	  when: root.hovered == true && root.opened == false
-
-	  PropertyChanges {
-		root.boxHeight: 28
-		root.boxWidth: 35
-	  }
-	},
-	State {
-	  name: "opened"
-	  when: root.opened == true && root.hovered == true
-
-	  PropertyChanges {
-		root.boxHeight: root.networkDisplayHeight
-		root.boxRadius: 12
-		root.boxWidth: 350
-	  }
-
-	  StateChangeScript {
-		script: {
-		  stack.replace(wifiInfo);
-		}
-	  }
-	}
-  ]
-
-  hover.onHoveredChanged: {
-	if (hover.hovered == false) {
-	  root.opened = false;
-	  if (root.state != "icon") {
-		root.stack.replace(icon);
-	  }
-	}
-  }
-  tap.onTapped: {
-	root.opened = true;
-  }
+  openedItem: networkDisplay
 
   Component {
 	id: icon
@@ -86,7 +38,7 @@ Container {
   }
 
   Component {
-	id: wifiInfo
+	id: networkDisplay
 
 	Item {
 	  id: networkDisplayRoot
