@@ -15,6 +15,10 @@ Container {
   id: root
 
   property Notification latestNotif
+  property bool logout: false
+  property double logoutHeight: 100
+  property double logoutMargin: 7
+  property double logoutSpacing: 5
   required property HyprlandMonitor monitor
   property bool mpris: false
   property double mprisHeight: 60
@@ -64,6 +68,24 @@ Container {
 		  mprisTimer.restart();
 		}
 	  }
+	},
+	State {
+	  name: "logout"
+	  when: root.logout == true
+
+	  PropertyChanges {
+		root.boxHeight: root.logoutHeight
+		root.boxRadius: 13
+		root.boxWidth: ((root.logoutHeight - (root.logoutMargin * 2)) * 5) + (root.logoutMargin * 2) + (
+						 root.logoutSpacing * 4)
+		root.visibleTopMargin: 10
+	  }
+
+	  StateChangeScript {
+		script: {
+		  root.stack.replace(logoutMenu);
+		}
+	  }
 	}
   ]
 
@@ -75,6 +97,15 @@ Container {
 	  root.overriden = false;
 	  root.mpris = true;
 	}
+  }
+
+  Connections {
+	function onLogoutMenu() {
+	  root.overriden = true;
+	  root.logout = true;
+	}
+
+	target: IpcManager
   }
 
   Connections {
@@ -124,6 +155,48 @@ Container {
 	onTriggered: {
 	  root.mpris = false;
 	  root.overriden = false;
+	}
+  }
+
+  Component {
+	id: logoutMenu
+
+	Item {
+	  id: logoutMenuRoot
+
+	  RowLayout {
+		spacing: root.logoutSpacing
+
+		anchors {
+		  fill: parent
+		  margins: root.logoutMargin
+		}
+
+		LogoutButton {
+		  color: Colors.red
+		  logoutText: "a"
+		}
+
+		LogoutButton {
+		  color: Colors.peach
+		  logoutText: "a"
+		}
+
+		LogoutButton {
+		  color: Colors.yellow
+		  logoutText: "a"
+		}
+
+		LogoutButton {
+		  color: Colors.green
+		  logoutText: "a"
+		}
+
+		LogoutButton {
+		  color: Colors.sky
+		  logoutText: "a"
+		}
+	  }
 	}
   }
 
@@ -303,6 +376,29 @@ Container {
 			}
 		  }
 		}
+	  }
+	}
+  }
+
+  component LogoutButton: Item {
+	id: logoutButtonRoot
+
+	property color color: Colors.surface1
+	property string logoutText: ""
+
+	Layout.fillHeight: true
+	Layout.fillWidth: true
+
+	Rectangle {
+	  anchors.fill: parent
+	  color: logoutButtonRoot.color
+	  radius: 7
+
+	  StyledText {
+		anchors.fill: parent
+		horizontalAlignment: Qt.AlignHCenter
+		text: logoutButtonRoot.logoutText
+		verticalAlignment: Qt.AlignVCenter
 	  }
 	}
   }
