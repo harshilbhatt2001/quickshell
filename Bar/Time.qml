@@ -55,7 +55,7 @@ Container {
 		root.boxHeight: root.mprisHeight
 		root.boxRadius: 12
 		root.boxWidth: root.mprisWidth
-		root.visibleTopMargin: 5
+		root.visibleTopMargin: root.hovered == true ? 0 : 5
 	  }
 
 	  StateChangeScript {
