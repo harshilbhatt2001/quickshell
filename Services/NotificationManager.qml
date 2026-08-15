@@ -11,16 +11,6 @@ Singleton {
 
   signal newNotification(notificiation: Notification)
 
-  function getLatestNotification() {
-	let notificationList = server.trackedNotifications.values;
-	let len = notificationList.length;
-	if (len <= 0) {
-	  len = 1;
-	}
-	let latestNotification = notificationList[len - 1];
-	return latestNotification;
-  }
-
   NotificationServer {
 	id: server
 

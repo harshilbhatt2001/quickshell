@@ -109,14 +109,12 @@ Container {
   }
 
   Connections {
-	function onNewNotification() {
-	  notification => {
-		if (notification.lastGeneration == false) {
-		  root.latestNotif = notification;
-		  root.overriden = true;
-		  root.notified = true;
-		}
-	  };
+	function onNewNotification(notification) {
+	  if (notification.lastGeneration == false) {
+		root.latestNotif = notification;
+		root.overriden = true;
+		root.notified = true;
+	  }
 	}
 
 	target: NotificationManager

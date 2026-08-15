@@ -10,12 +10,7 @@ Scope {
   Variants {
 	id: panelDelegate
 
-	delegate: panelWindow
 	model: Quickshell.screens
-  }
-
-  Component {
-	id: panelWindow
 
 	PanelWindow {
 	  id: win

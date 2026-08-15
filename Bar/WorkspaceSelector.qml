@@ -24,10 +24,14 @@ Container {
 																	   * workspaceButtonSpacing)
   defaultItem: placeholder
   exclusiveMonitor: monitor
+  // Disables the base "hovered" state so the extended one below wins instead of
+  // colliding with it.
+  overriden: root.hovered
 
   states: [
 	State {
-	  name: "hovered"
+	  name: "workspacesHovered"
+	  extend: "hovered"
 	  when: root.hovered
 
 	  PropertyChanges {

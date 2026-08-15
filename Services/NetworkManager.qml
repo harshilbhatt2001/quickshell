@@ -75,20 +75,6 @@ Singleton {
 	return iconArr[strengthIndex - 1];
   }
 
-  function getWifiText() {
-	let info = getNetworkDetails(defaultAdapter);
-
-	let adapter = info["adapterName"];
-	let name = info["networkName"];
-
-	let finalString = adapter + " - " + name;
-	return finalString;
-  }
-
-  function isConnectedAndWifi() {
-	return root.connectedWifi;
-  }
-
   function isDeviceWifi(adapter) {
 	if (adapter.type == DeviceType.Wifi) {
 	  return true;
@@ -111,8 +97,8 @@ Singleton {
   Process {
 	id: ipProcess
 
-	command: ["sh", "-c", "ip -4 -o addr show dev " + root.defaultAdapter.name
-	  + " scope global | awk '{sub(\"/.*\", \"\", $4); printf $4}'"]
+	command: ["sh", "-c", root.defaultAdapter ? "ip -4 -o addr show dev " + root.defaultAdapter.name
+	  + " scope global | awk '{sub(\"/.*\", \"\", $4); printf $4}'" : "true"]
 	running: true
 
 	stdout: StdioCollector {

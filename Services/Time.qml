@@ -11,7 +11,6 @@ import Quickshell.Io
 Singleton {
   id: root
 
-  property string date
   property string time
 
   Process {
@@ -25,17 +24,6 @@ Singleton {
 	}
   }
 
-  Process {
-	id: dateProc
-
-	command: ["date", "+%A %B %d %Y"]
-	running: true
-
-	stdout: StdioCollector {
-	  onStreamFinished: root.date = this.text
-	}
-  }
-
   Timer {
 	interval: 1000
 	repeat: true
@@ -43,7 +31,6 @@ Singleton {
 
 	onTriggered: {
 	  timeProc.running = true;
-	  dateProc.running = true;
 	}
   }
 }

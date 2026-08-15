@@ -7,14 +7,9 @@ Singleton {
   id: root
 
   property BluetoothAdapter defaultAdapter: Bluetooth.defaultAdapter || null
-  property string defaultAdapterName: defaultAdapter ? defaultAdapter.adapterId : ""
 
   property bool anyConnected: root.defaultAdapter != null
     && root.defaultAdapter.devices.values.some(device => device.connected)
-
-  function getConnected() {
-	return root.anyConnected;
-  }
 
   function getConnectedDevicesList() {
 	let devicesList = getDevicesList();

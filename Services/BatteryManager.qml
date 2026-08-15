@@ -8,12 +8,8 @@ import "../Color.js" as Colors
 Singleton {
   id: root
 
-  property double batteryPercentage: root.mainBattery.percentage || 0
-  property bool batteryPresent: root.mainBattery.ready || false
   property UPowerDevice mainBattery: UPower.displayDevice || undefined
   property bool hasLaptopBattery: root.mainBattery && root.mainBattery.isLaptopBattery
-
-
 
   function getBatteryColor() {
 	let criticalLevel = 20;
@@ -49,9 +45,12 @@ Singleton {
   }
 
   function getBatteryName(battery) {
+	if (!battery || !battery.nativePath) {
+	  return "";
+	}
 	let pathsplit = battery.nativePath.split("/");
-	let batteryName = pathsplit[pathsplit.length];
-	return pathsplit;
+	let batteryName = pathsplit[pathsplit.length - 1];
+	return batteryName;
   }
 
   function getBatteryPercentage(battery) {
@@ -80,6 +79,15 @@ Singleton {
 
   function getMainBatteryInfo() {
 	let battery = UPower.devices.values[0];
+	if (!battery) {
+	  return {
+		"name": "",
+		"charge": 0,
+		"energy": "0.0",
+		"capacity": "0.0",
+		"health": 0
+	  };
+	}
 	let batteryState = battery.state;
 	let batteryName = getBatteryName(battery);
 	let time = getTimeFormat();

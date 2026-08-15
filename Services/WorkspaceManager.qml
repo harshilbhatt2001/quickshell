@@ -6,11 +6,6 @@ import Quickshell.Hyprland
 Singleton {
   id: root
 
-  function activateNextFreeWorkspace() {
-	let nextFree = getNextFreeWorkspace();
-	activateWorkspaceById(nextFree);
-  }
-
   function activateWorkspaceById(id) {
 	Hyprland.dispatch(`hl.dsp.focus({workspace = ${id}})`);
   }
@@ -27,24 +22,6 @@ Singleton {
 	  }
 	}
 	return filteredWorkspaces;
-  }
-
-  function getNextFreeWorkspace() {
-	let workspaceList = getAllNumberedWorkspaces();
-
-	if (workspaceList[workspaceList.length - 1].id == workspaceList.length) {
-	  return workspaceList.length + 1;
-	} else {
-	  let prevWorkspace = 0;
-	  for (let workspace in workspaceList) {
-		let currentWorkspace = workspaceList[workspace];
-		if (currentWorkspace.id != (prevWorkspace + 1)) {
-		  return currentWorkspace.id - 1;
-		} else {
-		  prevWorkspace = currentWorkspace.id;
-		}
-	  }
-	}
   }
 
   function getNumberOfWorkspaces(monitor) {
