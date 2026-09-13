@@ -190,6 +190,24 @@ Container {
 		return fullHeight - (fullMargin * 2);
 	  }
 
+	  // Clicking the toast takes you to the app: the notification's default
+	  // action if it has one, otherwise the app's Hyprland window. Either way
+	  // the notification is dismissed and the clock comes back.
+	  TapHandler {
+		acceptedButtons: Qt.LeftButton
+
+		onTapped: {
+		  const notif = root.latestNotif;
+		  NotificationManager.activate(notif);
+		  if (notif && notif.tracked) {
+			notif.dismiss();
+		  }
+		  notificationTimer.stop();
+		  root.notified = false;
+		  root.overriden = root.mpris;
+		}
+	  }
+
 	  Rectangle {
 		color: Colors.surface1
 		radius: 9
