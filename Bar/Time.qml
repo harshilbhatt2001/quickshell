@@ -15,10 +15,6 @@ Container {
   id: root
 
   property Notification latestNotif
-  property bool logout: false
-  property double logoutHeight: 100
-  property double logoutMargin: 7
-  property double logoutSpacing: 5
   required property HyprlandMonitor monitor
   property bool mpris: false
   property double mprisHeight: 60
@@ -27,11 +23,26 @@ Container {
   property double notificationWidth: 350
   property bool notified: false
 
+  function showMpris() {
+	if (!MprisManager.hasMedia) {
+	  return;
+	}
+	root.overriden = true;
+	root.mpris = true;
+	if (root.hovered) {
+	  mprisTimer.stop();
+	} else {
+	  mprisTimer.restart();
+	}
+  }
+
   boxColor: Colors.mauve
   defaultItem: time
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
 
+  // NOTE: this replaces Container's own closed/hovered/opened states, so the
+  // base state ("") has to restore the clock itself — see onStateChanged.
   states: [
 	State {
 	  name: "notified"
@@ -53,7 +64,7 @@ Container {
 	},
 	State {
 	  name: "mpris"
-	  when: root.mpris == true
+	  when: root.mpris == true && MprisManager.hasMedia
 
 	  PropertyChanges {
 		root.boxHeight: root.mprisHeight
@@ -65,47 +76,26 @@ Container {
 	  StateChangeScript {
 		script: {
 		  root.stack.replace(mprisToast);
-		  mprisTimer.restart();
-		}
-	  }
-	},
-	State {
-	  name: "logout"
-	  when: root.logout == true
-
-	  PropertyChanges {
-		root.boxHeight: root.logoutHeight
-		root.boxRadius: 13
-		root.boxWidth: ((root.logoutHeight - (root.logoutMargin * 2)) * 5) + (root.logoutMargin * 2) + (
-						 root.logoutSpacing * 4)
-		root.visibleTopMargin: 10
-	  }
-
-	  StateChangeScript {
-		script: {
-		  root.stack.replace(logoutMenu);
 		}
 	  }
 	}
   ]
 
   onHoveredChanged: {
-	if (root.hovered == true && MprisManager.getPlaying() == true) {
-	  root.overriden = true;
-	  root.mpris = true;
-	} else {
-	  root.overriden = false;
-	  root.mpris = true;
+	if (root.hovered) {
+	  // Hover shows the player regardless of playback state, as long as
+	  // some player exists (paused Zen tab included).
+	  root.showMpris();
+	} else if (root.mpris) {
+	  mprisTimer.stop();
+	  root.mpris = false;
+	  root.overriden = root.notified;
 	}
   }
-
-  Connections {
-	function onLogoutMenu() {
-	  root.overriden = true;
-	  root.logout = true;
+  onStateChanged: {
+	if (root.state === "") {
+	  root.stack.replace(root.defaultItem);
 	}
-
-	target: IpcManager
   }
 
   Connections {
@@ -121,13 +111,29 @@ Container {
   }
 
   Connections {
-	function onTrackChanged() {
-	  root.overriden = true;
-	  root.mpris = true;
-	  console.log("track changed");
+	function onHasMediaChanged() {
+	  if (!MprisManager.hasMedia && root.mpris) {
+		mprisTimer.stop();
+		root.mpris = false;
+		root.overriden = root.notified;
+	  }
 	}
 
-	target: MprisManager.defaultPlayer
+	target: MprisManager
+  }
+
+  Connections {
+	// Firefox/Zen keep a constant mpris:trackid, so trackChanged may not fire
+	// for them; the title changing is the reliable signal there.
+	function onTrackChanged() {
+	  root.showMpris();
+	}
+
+	function onTrackTitleChanged() {
+	  root.showMpris();
+	}
+
+	target: MprisManager.activePlayer
   }
 
   Timer {
@@ -139,7 +145,7 @@ Container {
 
 	onTriggered: {
 	  root.notified = false;
-	  root.overriden = false;
+	  root.overriden = root.mpris;
 	}
   }
 
@@ -152,49 +158,7 @@ Container {
 
 	onTriggered: {
 	  root.mpris = false;
-	  root.overriden = false;
-	}
-  }
-
-  Component {
-	id: logoutMenu
-
-	Item {
-	  id: logoutMenuRoot
-
-	  RowLayout {
-		spacing: root.logoutSpacing
-
-		anchors {
-		  fill: parent
-		  margins: root.logoutMargin
-		}
-
-		LogoutButton {
-		  color: Colors.red
-		  logoutText: "a"
-		}
-
-		LogoutButton {
-		  color: Colors.peach
-		  logoutText: "a"
-		}
-
-		LogoutButton {
-		  color: Colors.yellow
-		  logoutText: "a"
-		}
-
-		LogoutButton {
-		  color: Colors.green
-		  logoutText: "a"
-		}
-
-		LogoutButton {
-		  color: Colors.sky
-		  logoutText: "a"
-		}
-	  }
+	  root.overriden = root.notified;
 	}
   }
 
@@ -289,6 +253,9 @@ Container {
 
 	  property double innerMargin: 4
 	  property double outerMargin: 4
+	  property int pendingButton: Qt.NoButton
+	  property double textWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (mprisToastRoot.innerMargin
+																						* 5) + mprisToastRoot.getInnerHeight())
 	  property var trackInfo: MprisManager.getTrackInfo()
 
 	  function getInnerHeight() {
@@ -296,6 +263,56 @@ Container {
 		let fullMargin = mprisToastRoot.innerMargin + mprisToastRoot.outerMargin;
 
 		return fullHeight - (fullMargin * 2);
+	  }
+
+	  // Keep the position (and thus the progress bar) ticking while the toast
+	  // is visible; Quickshell only re-reads it when asked.
+	  Timer {
+		interval: 1000
+		repeat: true
+		running: mprisToastRoot.visible && MprisManager.isPlaying
+
+		onTriggered: {
+		  if (MprisManager.activePlayer) {
+			MprisManager.activePlayer.positionChanged();
+		  }
+		}
+	  }
+
+	  // Single left click: play/pause. Double left: next. Double right: previous.
+	  // The single click is deferred by one double-click interval so that the
+	  // first tap of a double click doesn't also toggle playback.
+	  Timer {
+		id: singleTapTimer
+
+		interval: 250
+		repeat: false
+
+		onTriggered: {
+		  if (mprisToastRoot.pendingButton === Qt.LeftButton) {
+			MprisManager.togglePlaying();
+		  }
+		  mprisToastRoot.pendingButton = Qt.NoButton;
+		}
+	  }
+
+	  TapHandler {
+		acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+		onTapped: (eventPoint, button) => {
+		  if (tapCount === 1) {
+			mprisToastRoot.pendingButton = button;
+			singleTapTimer.restart();
+		  } else if (tapCount === 2) {
+			singleTapTimer.stop();
+			mprisToastRoot.pendingButton = Qt.NoButton;
+			if (button === Qt.LeftButton) {
+			  MprisManager.next();
+			} else if (button === Qt.RightButton) {
+			  MprisManager.previous();
+			}
+		  }
+		}
 	  }
 
 	  Rectangle {
@@ -310,6 +327,7 @@ Container {
 		RowLayout {
 		  Rectangle {
 			Layout.margins: mprisToastRoot.innerMargin
+			clip: true
 			color: Colors.mauve
 			implicitHeight: mprisToastRoot.getInnerHeight()
 			implicitWidth: mprisToastRoot.getInnerHeight()
@@ -317,7 +335,7 @@ Container {
 
 			IconImage {
 			  anchors.fill: parent
-			  source: mprisToastRoot.trackInfo["albumArt"]
+			  source: mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["albumArt"] : ""
 			}
 		  }
 
@@ -330,20 +348,24 @@ Container {
 			Layout.margins: mprisToastRoot.innerMargin + textMargin
 
 			StyledText {
-			  Layout.maximumWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (
-														mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
+			  Layout.maximumWidth: mprisToastRoot.textWidth
 			  color: Colors.text
 			  fontSize: 14
-			  text: mprisToastRoot.trackInfo["name"] + " - " + mprisToastRoot.trackInfo["artist"]
+			  text: {
+				if (!mprisToastRoot.trackInfo) {
+				  return "";
+				}
+				const name = mprisToastRoot.trackInfo["name"];
+				const artist = mprisToastRoot.trackInfo["artist"];
+				return artist ? name + " - " + artist : name;
+			  }
 			}
 
 			Item {
 			  Layout.fillHeight: true
 			  Layout.fillWidth: true
-			  Layout.maximumWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (
-														mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
-			  Layout.preferredWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (
-														  mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
+			  Layout.maximumWidth: mprisToastRoot.textWidth
+			  Layout.preferredWidth: mprisToastRoot.textWidth
 
 			  Rectangle {
 				anchors.fill: parent
@@ -352,8 +374,15 @@ Container {
 
 				Rectangle {
 				  color: Colors.mauve
-				  implicitWidth: parent.width * mprisToastRoot.trackInfo["lengthPercent"]
+				  implicitWidth: parent.width * (mprisToastRoot.trackInfo
+												 ? mprisToastRoot.trackInfo["lengthPercent"] : 0)
 				  radius: 100
+
+				  Behavior on implicitWidth {
+					NumberAnimation {
+					  duration: 200
+					}
+				  }
 
 				  anchors {
 					bottom: parent.bottom
@@ -363,7 +392,15 @@ Container {
 				}
 
 				StyledText {
-				  text: MprisManager.getTimeString()
+				  propo: true
+				  text: {
+					if (!mprisToastRoot.trackInfo) {
+					  return "";
+					}
+					const icon = mprisToastRoot.trackInfo["playing"] ? "󰐊" : "󰏤";
+					const time = mprisToastRoot.trackInfo["timeString"];
+					return time ? icon + "  " + time : icon;
+				  }
 
 				  anchors {
 					horizontalCenter: parent.horizontalCenter
@@ -374,29 +411,6 @@ Container {
 			}
 		  }
 		}
-	  }
-	}
-  }
-
-  component LogoutButton: Item {
-	id: logoutButtonRoot
-
-	property color color: Colors.surface1
-	property string logoutText: ""
-
-	Layout.fillHeight: true
-	Layout.fillWidth: true
-
-	Rectangle {
-	  anchors.fill: parent
-	  color: logoutButtonRoot.color
-	  radius: 7
-
-	  StyledText {
-		anchors.fill: parent
-		horizontalAlignment: Qt.AlignHCenter
-		text: logoutButtonRoot.logoutText
-		verticalAlignment: Qt.AlignVCenter
 	  }
 	}
   }

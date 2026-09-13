@@ -124,10 +124,7 @@ useless features. Speaking of...
   - Notification menu/management
   - Lock screen
   - Volume control? (probably not, way-edges clears)
-  - Interactible mpris player (skip and rewind)
   - Music indicator on the left of the clock when music is playing
-  - Hover to show mpris thing when music is paused
-  - Mpris firefox exclusion (I had to disable it in about:config lol)
 
 ### More rambling
 
