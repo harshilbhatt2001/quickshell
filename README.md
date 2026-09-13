@@ -98,7 +98,13 @@ useless features. Speaking of...
 - _Clock:_ It's a clock. When a notification comes in, the clock is substituted for a
   notification popup. If music is playing (any playerctld compatible player), when the
   track changes a toast will appear, and when hovered over, the clock will be replaced
-  with a music information screen.
+  with a music information screen. The hovered clock is a pager: the mouse's thumb
+  (horizontal) wheel flips between the music screen and a month calendar. Click a day to
+  list its events. Events come from Google Calendar through
+  [gcalcli](https://github.com/insanum/gcalcli): install it and run `gcalcli init` once,
+  and the calendar picks them up (refreshing every five minutes). Without gcalcli it is
+  just a calendar. Only a month view exists so far; day/3-day/week views slot into
+  `Bar/Calendar/`.
 - _Network:_ Displays whether the machine is connected to wifi or not. Ethernet is assumed
   a permanent feature, and the module is thus hidden even though a network is connected.
   When clicked, shows the network name, local ip address, interface that is being used to

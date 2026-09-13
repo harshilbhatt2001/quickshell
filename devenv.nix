@@ -9,6 +9,7 @@
   packages = with pkgs; [
     quickshell
     kdePackages.qtdeclarative
+    gcalcli
   ];
 
   processes = {

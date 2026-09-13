@@ -10,30 +10,45 @@ import Quickshell.Widgets
 import "../Color.js" as Colors
 import "../Components/"
 import "../Services/"
+import "./Calendar/"
 
 Container {
   id: root
 
+  property bool island: false
+  property double islandHeight: root.mprisHeight
+  property int islandPage: 0
+  property double islandWidth: 350
   property Notification latestNotif
   required property HyprlandMonitor monitor
-  property bool mpris: false
-  property double mprisHeight: 60
-  property double mprisWidth: 350
+  property double mprisHeight: 64
   property double notificationHeight: 100
   property double notificationWidth: 350
   property bool notified: false
+
+  function closeIsland() {
+	islandTimer.stop();
+	root.island = false;
+	root.islandPage = 0;
+	root.overriden = root.notified;
+  }
+
+  function openIsland() {
+	root.overriden = true;
+	root.island = true;
+	if (root.hovered) {
+	  islandTimer.stop();
+	} else {
+	  islandTimer.restart();
+	}
+  }
 
   function showMpris() {
 	if (!MprisManager.hasMedia) {
 	  return;
 	}
-	root.overriden = true;
-	root.mpris = true;
-	if (root.hovered) {
-	  mprisTimer.stop();
-	} else {
-	  mprisTimer.restart();
-	}
+	root.islandPage = 0;
+	root.openIsland();
   }
 
   boxColor: Colors.mauve
@@ -63,19 +78,19 @@ Container {
 	  }
 	},
 	State {
-	  name: "mpris"
-	  when: root.mpris == true && MprisManager.hasMedia
+	  name: "island"
+	  when: root.island == true && (root.hovered || MprisManager.hasMedia)
 
 	  PropertyChanges {
-		root.boxHeight: root.mprisHeight
+		root.boxHeight: root.islandHeight
 		root.boxRadius: 12
-		root.boxWidth: root.mprisWidth
+		root.boxWidth: root.islandWidth
 		root.visibleTopMargin: root.hovered == true ? 0 : 5
 	  }
 
 	  StateChangeScript {
 		script: {
-		  root.stack.replace(mprisToast);
+		  root.stack.replace(island);
 		}
 	  }
 	}
@@ -83,13 +98,9 @@ Container {
 
   onHoveredChanged: {
 	if (root.hovered) {
-	  // Hover shows the player regardless of playback state, as long as
-	  // some player exists (paused Zen tab included).
-	  root.showMpris();
-	} else if (root.mpris) {
-	  mprisTimer.stop();
-	  root.mpris = false;
-	  root.overriden = root.notified;
+	  root.openIsland();
+	} else if (root.island) {
+	  root.closeIsland();
 	}
   }
   onStateChanged: {
@@ -112,10 +123,8 @@ Container {
 
   Connections {
 	function onHasMediaChanged() {
-	  if (!MprisManager.hasMedia && root.mpris) {
-		mprisTimer.stop();
-		root.mpris = false;
-		root.overriden = root.notified;
+	  if (!MprisManager.hasMedia && root.island && !root.hovered) {
+		root.closeIsland();
 	  }
 	}
 
@@ -145,21 +154,133 @@ Container {
 
 	onTriggered: {
 	  root.notified = false;
-	  root.overriden = root.mpris;
+	  root.overriden = root.island;
 	}
   }
 
   Timer {
-	id: mprisTimer
+	id: islandTimer
 
 	interval: 3000
 	repeat: false
 	running: false
 
-	onTriggered: {
-	  root.mpris = false;
-	  root.overriden = root.notified;
+	onTriggered: root.closeIsland()
+  }
+
+  Component {
+	id: island
+
+	Item {
+	  id: islandRoot
+
+	  readonly property var pageComponents: ({
+											   "mpris": mprisToast,
+											   "calendar": calendarPage
+											 })
+	  readonly property var pages: MprisManager.hasMedia ? ["mpris", "calendar"] : ["calendar"]
+
+	  function scroll(step) {
+		const next = swipe.currentIndex + step;
+		if (next < 0 || next >= swipe.count || wheelCooldown.running) {
+		  return;
+		}
+		root.islandPage = next;
+		wheelCooldown.restart();
+	  }
+
+	  Binding {
+		property: "islandHeight"
+		target: root
+		value: swipe.currentItem ? swipe.currentItem.implicitHeight : root.mprisHeight
+	  }
+
+	  Connections {
+		function onIslandPageChanged() {
+		  swipe.setCurrentIndex(root.islandPage);
+		}
+
+		target: root
+	  }
+
+	  // Thumb (horizontal) wheel only; the vertical wheel is left alone.
+	  WheelHandler {
+		acceptedDevices: PointerDevice.Mouse
+
+		onWheel: event => {
+		  if (event.angleDelta.x !== 0) {
+			islandRoot.scroll(event.angleDelta.x < 0 ? 1 : -1);
+		  }
+		}
+	  }
+
+	  Timer {
+		id: wheelCooldown
+
+		interval: 300
+	  }
+
+	  SwipeView {
+		id: swipe
+
+		anchors.fill: parent
+		clip: true
+		interactive: false
+
+		Component.onCompleted: swipe.setCurrentIndex(root.islandPage)
+		onCurrentIndexChanged: root.islandPage = swipe.currentIndex
+
+		Repeater {
+		  model: islandRoot.pages
+
+		  Loader {
+			required property string modelData
+
+			sourceComponent: islandRoot.pageComponents[modelData]
+		  }
+		}
+	  }
+
+	  Row {
+		anchors.horizontalCenter: parent.horizontalCenter
+		anchors.top: parent.top
+		anchors.topMargin: 2
+		spacing: 4
+		visible: swipe.count > 1
+
+		Repeater {
+		  model: swipe.count
+
+		  Rectangle {
+			required property int index
+
+			color: Colors.base
+			height: 3
+			opacity: index === swipe.currentIndex ? 0.9 : 0.3
+			radius: 1.5
+			width: index === swipe.currentIndex ? 12 : 3
+
+			Behavior on opacity {
+			  NumberAnimation {
+				duration: 200
+			  }
+			}
+			Behavior on width {
+			  NumberAnimation {
+				duration: 200
+				easing.type: Easing.OutCubic
+			  }
+			}
+		  }
+		}
+	  }
 	}
+  }
+
+  Component {
+	id: calendarPage
+
+	CalendarPage {}
   }
 
   Component {
@@ -252,10 +373,10 @@ Container {
 	  id: mprisToastRoot
 
 	  property double innerMargin: 4
-	  property double outerMargin: 4
+	  property double outerMargin: 6
 	  property int pendingButton: Qt.NoButton
-	  property double textWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (mprisToastRoot.innerMargin
-																						* 5) + mprisToastRoot.getInnerHeight())
+	  property double textWidth: root.islandWidth - ((mprisToastRoot.outerMargin * 2) + (
+													   mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
 	  property var trackInfo: MprisManager.getTrackInfo()
 
 	  function getInnerHeight() {
@@ -264,6 +385,8 @@ Container {
 
 		return fullHeight - (fullMargin * 2);
 	  }
+
+	  implicitHeight: root.mprisHeight
 
 	  // Keep the position (and thus the progress bar) ticking while the toast
 	  // is visible; Quickshell only re-reads it when asked.
@@ -397,7 +520,7 @@ Container {
 					if (!mprisToastRoot.trackInfo) {
 					  return "";
 					}
-					const icon = mprisToastRoot.trackInfo["playing"] ? "󰐊" : "󰏤";
+					const icon = mprisToastRoot.trackInfo["playing"] ? "󰏤" : "󰐊";
 					const time = mprisToastRoot.trackInfo["timeString"];
 					return time ? icon + "  " + time : icon;
 				  }

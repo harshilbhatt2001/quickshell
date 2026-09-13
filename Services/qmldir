@@ -7,3 +7,4 @@ singleton MprisManager 1.0 MprisManager.qml
 singleton BatteryManager 1.0 BatteryManager.qml
 singleton NetworkManager 1.0 NetworkManager.qml
 singleton IpcManager 1.0 IpcManager.qml
+singleton CalendarManager 1.0 CalendarManager.qml
