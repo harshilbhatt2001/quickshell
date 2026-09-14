@@ -16,6 +16,11 @@ ColumnLayout {
   readonly property int firstWeekday: Qt.locale().firstDayOfWeek % 7
   readonly property int inlineEvents: 2
   readonly property int listedEvents: 5
+  readonly property date nextUp: {
+	const e = root.selectedEvents.find(e => e.end > root.now);
+	return e ? e.start : new Date(NaN);
+  }
+  property date now: new Date()
   property date selected: new Date()
   readonly property var selectedEvents: CalendarManager.eventsOn(root.selected)
   readonly property string title: Qt.formatDate(root.anchor, "MMMM yyyy")
@@ -42,6 +47,14 @@ ColumnLayout {
   }
 
   spacing: 4
+
+  Timer {
+	interval: 60000
+	repeat: true
+	running: true
+
+	onTriggered: root.now = new Date()
+  }
 
   Row {
 	Layout.alignment: Qt.AlignHCenter
@@ -80,11 +93,13 @@ ColumnLayout {
 		readonly property var events: CalendarManager.eventsOn(cell.day)
 		readonly property bool inMonth: cell.day.getMonth() === root.anchor.getMonth()
 		required property int index
+		readonly property bool isPast: cell.day < new Date(root.today.getFullYear(), root.today.getMonth(),
+														   root.today.getDate())
 		readonly property bool isSelected: root.sameDay(cell.day, root.selected)
 		readonly property bool isToday: root.sameDay(cell.day, root.today)
 
 		height: root.cellHeight
-		opacity: cell.inMonth ? 1 : 0.35
+		opacity: !cell.inMonth ? 0.3 : (cell.isPast ? 0.5 : 1)
 		width: root.cellWidth
 
 		HoverHandler {
@@ -129,8 +144,8 @@ ColumnLayout {
 		  StyledText {
 			anchors.centerIn: parent
 			color: cell.isToday ? Colors.mauve : Colors.base
-			fontSize: 11
-			fontWeight: cell.isToday || cell.isSelected ? 8 : 5
+			fontSize: cell.isToday ? 12 : 11
+			fontWeight: cell.isToday ? 9 : (cell.isSelected ? 7 : 5)
 			text: cell.day.getDate()
 		  }
 		}
@@ -153,7 +168,8 @@ ColumnLayout {
 
 			  color: Colors.base
 			  fontSize: 7
-			  fontWeight: 6
+			  fontWeight: cell.isToday ? 8 : 6
+			  opacity: cell.isToday && modelData.end < root.now ? 0.45 : 1
 			  text: {
 				const extra = cell.events.length - root.inlineEvents;
 				const more = index === root.inlineEvents - 1 && extra > 0 ? "  +" + extra : "";
@@ -187,10 +203,13 @@ ColumnLayout {
 		  id: eventRow
 
 		  required property int index
+		  readonly property bool isNext: eventRow.modelData.start.getTime() === root.nextUp.getTime()
+		  readonly property bool isPast: eventRow.modelData.end < root.now
 		  required property var modelData
 
 		  color: rowHover.hovered ? Colors.surface0 : "transparent"
 		  height: 24
+		  opacity: eventRow.isPast ? 0.45 : 1
 		  radius: 6
 		  width: parent.width
 
@@ -228,7 +247,7 @@ ColumnLayout {
 			  Layout.rightMargin: 6
 			  color: Colors.text
 			  fontSize: 10
-			  fontWeight: 6
+			  fontWeight: eventRow.isNext ? 9 : 6
 			  text: {
 				const extra = root.selectedEvents.length - root.listedEvents;
 				if (eventRow.index === root.listedEvents - 1 && extra > 0) {

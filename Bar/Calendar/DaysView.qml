@@ -48,6 +48,11 @@ Item {
 	}
 	return h;
   }
+  // Start of the next upcoming event today; it gets the heaviest weight.
+  readonly property date nextUp: {
+	const e = CalendarManager.eventsOn(root.now).find(e => !e.allDay && e.end > root.now);
+	return e ? e.start : new Date(NaN);
+  }
   property date now: new Date()
   readonly property double pxPerHour: 30
   property date selected: new Date()
@@ -151,11 +156,14 @@ Item {
 
 		readonly property var allDay: CalendarManager.eventsOn(column.day).filter(e => e.allDay)
 		readonly property date day: column.modelData
+		readonly property bool isPast: column.day < new Date(root.now.getFullYear(), root.now.getMonth(),
+															 root.now.getDate())
 		readonly property bool isToday: root.sameDay(column.day, root.now)
 		required property var modelData
 		readonly property var placed: root.layoutDay(column.day)
 
 		height: parent.height
+		opacity: column.isPast ? 0.5 : 1
 		width: columns.columnWidth
 
 		TapHandler {
@@ -186,8 +194,8 @@ Item {
 
 			anchors.centerIn: parent
 			color: column.isToday ? Colors.mauve : Colors.base
-			fontSize: 10
-			fontWeight: column.isToday ? 8 : 6
+			fontSize: column.isToday ? 11 : 10
+			fontWeight: column.isToday ? 9 : 6
 			text: (root.days === 7 ? Qt.formatDate(column.day, "ddd").slice(0, 2) : Qt.formatDate(column.day,
 																								  "ddd")) + " " + column.day.getDate()
 		  }
@@ -254,12 +262,17 @@ Item {
 			Rectangle {
 			  id: block
 
+			  readonly property bool hovered: blockHover.hovered
+			  readonly property bool isNext: column.isToday && block.modelData.event.start.getTime()
+											 === root.nextUp.getTime()
+			  readonly property bool isPast: block.modelData.event.end < root.now
 			  readonly property double laneWidth: (grid.width - 3) / block.modelData.lanes
 			  required property var modelData
 
 			  color: block.hovered ? Colors.surface0 : Colors.base
 			  height: Math.max(8, root.yFor(block.modelData.event.end, column.day) - block.y - 1)
 			  objectName: "event"
+			  opacity: block.isPast ? 0.45 : 1
 			  radius: 3
 			  width: block.laneWidth - 1
 			  x: 2 + block.modelData.lane * block.laneWidth
@@ -275,13 +288,22 @@ Item {
 				anchors.rightMargin: 2
 				anchors.topMargin: 1
 				color: Colors.text
-				fontSize: 8
-				fontWeight: 6
+				fontSize: block.isNext ? 9 : 8
+				fontWeight: block.isNext ? 9 : 6
 				maximumLineCount: Math.max(1, Math.floor((block.height - 2) / 13))
 				text: block.modelData.event.title
 				wrapMode: Text.Wrap
 			  }
 			}
+		  }
+
+		  // Elapsed hours today fade under the island's own background.
+		  Rectangle {
+			color: Colors.mauve
+			height: root.yFor(root.now, column.day)
+			opacity: 0.4
+			visible: column.isToday
+			width: parent.width
 		  }
 
 		  Rectangle {
