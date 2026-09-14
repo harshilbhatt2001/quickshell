@@ -536,6 +536,12 @@ Container {
 		acceptedButtons: Qt.LeftButton | Qt.RightButton
 
 		onTapped: (eventPoint, button) => {
+		  // The progress wave handles its own taps (seek); don't also toggle
+		  // playback for them. A little slop above/below makes it easier to hit.
+		  const p = wave.mapFromItem(mprisToastRoot, eventPoint.position);
+		  if (wave.seekable && p.x >= 0 && p.x <= wave.width && p.y >= -4 && p.y <= wave.height + 4) {
+			return;
+		  }
 		  if (tapCount === 1) {
 			mprisToastRoot.pendingButton = button;
 			singleTapTimer.restart();
@@ -666,6 +672,8 @@ Container {
 			  property double phase: 0
 			  property double progress: mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["lengthPercent"] :
 																   0
+			  readonly property bool seekable: !!MprisManager.activePlayer
+											   && MprisManager.activePlayer.canSeek
 
 			  Layout.fillWidth: true
 			  implicitHeight: 12
@@ -733,10 +741,37 @@ Container {
 				ctx.beginPath();
 				ctx.arc(head, mid, 2.5, 0, 2 * Math.PI);
 				ctx.fill();
+
+				if (wave.seekable && waveHover.hovered) {
+				  const hx = Math.max(0, Math.min(w, waveHover.point.position.x));
+				  ctx.strokeStyle = Colors.overlay1;
+				  ctx.lineWidth = 1;
+				  ctx.beginPath();
+				  ctx.moveTo(hx, mid - 4);
+				  ctx.lineTo(hx, mid + 4);
+				  ctx.stroke();
+				}
 			  }
 			  onPhaseChanged: wave.requestPaint()
 			  onProgressChanged: wave.requestPaint()
 			  onWidthChanged: wave.requestPaint()
+
+			  HoverHandler {
+				id: waveHover
+
+				cursorShape: Qt.PointingHandCursor
+				enabled: wave.seekable
+
+				onHoveredChanged: wave.requestPaint()
+				onPointChanged: wave.requestPaint()
+			  }
+
+			  TapHandler {
+				acceptedButtons: Qt.LeftButton
+				enabled: wave.seekable
+
+				onTapped: eventPoint => MprisManager.seek(eventPoint.position.x / wave.width)
+			  }
 			}
 
 			StyledText {

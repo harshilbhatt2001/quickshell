@@ -72,6 +72,22 @@ Singleton {
 	return h > 0 ? h + ":" + mm + ":" + ss : m + ":" + ss;
   }
 
+  // Fraction of the track length, 0..1.
+  function seek(fraction) {
+	const p = root.activePlayer;
+	if (!p || !p.canSeek || !p.lengthSupported) {
+	  return;
+	}
+	const length = Number(p.length) || 0;
+	if (length <= 0) {
+	  return;
+	}
+	p.position = Math.max(0, Math.min(1, Number(fraction) || 0)) * length;
+	// Quickshell doesn't re-read the position after a seek, so nudge the
+	// bindings that depend on it.
+	p.positionChanged();
+  }
+
   function togglePlaying() {
 	if (root.activePlayer && root.activePlayer.canTogglePlaying) {
 	  root.activePlayer.togglePlaying();
