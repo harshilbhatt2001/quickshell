@@ -56,8 +56,8 @@ Rectangle {
   }
 
   color: Colors.base
-  implicitHeight: column.implicitHeight + 16
-  radius: 10
+  implicitHeight: column.implicitHeight + 20
+  radius: 12
 
   Component.onCompleted: {
 	CalendarManager.editing = true;
@@ -80,7 +80,7 @@ Rectangle {
 	  id: titleField
 
 	  Layout.fillWidth: true
-	  fontSize: 11
+	  fontSize: 13
 	  placeholder: "Title"
 	  text: root.event ? root.event.title : ""
 	}
@@ -92,14 +92,14 @@ Rectangle {
 	  Field {
 		id: dateField
 
-		Layout.preferredWidth: 96
+		Layout.preferredWidth: 110
 		text: Qt.formatDate(root.start, "yyyy-MM-dd")
 	  }
 
 	  Field {
 		id: startField
 
-		Layout.preferredWidth: 52
+		Layout.preferredWidth: 60
 		text: Qt.formatTime(root.start, "HH:mm")
 		visible: !root.allDay
 	  }
@@ -114,7 +114,7 @@ Rectangle {
 	  Field {
 		id: endField
 
-		Layout.preferredWidth: 52
+		Layout.preferredWidth: 60
 		text: Qt.formatTime(root.end, "HH:mm")
 		visible: !root.allDay
 	  }
@@ -188,8 +188,8 @@ Rectangle {
 	border.width: 1
 	color: chip.active ? chip.tint : (chipHover.hovered && chip.enabled ? Qt.alpha(chip.tint, 0.15) :
 																		  "transparent")
-	implicitHeight: 20
-	implicitWidth: Math.min(140, chipLabel.implicitWidth + 16)
+	implicitHeight: 24
+	implicitWidth: Math.min(160, chipLabel.implicitWidth + 20)
 	opacity: chip.enabled ? 1 : 0.4
 	radius: 10
 
@@ -215,7 +215,7 @@ Rectangle {
 	  anchors.centerIn: parent
 	  color: chip.active ? Colors.base : chip.tint
 	  elide: Text.ElideRight
-	  fontSize: 8
+	  fontSize: 9
 	  fontWeight: 7
 	  horizontalAlignment: Qt.AlignHCenter
 	  width: Math.min(implicitWidth, 124)
@@ -235,8 +235,8 @@ Rectangle {
 	border.color: input.activeFocus ? Colors.mauve : Colors.surface1
 	border.width: 1
 	color: Colors.surface0
-	implicitHeight: 24
-	radius: 6
+	implicitHeight: 28
+	radius: 7
 
 	Behavior on border.color {
 	  ColorAnimation {
@@ -256,7 +256,7 @@ Rectangle {
 	TextInput {
 	  id: input
 
-	  property double fontSize: 9
+	  property double fontSize: 10
 
 	  clip: true
 	  color: Colors.text

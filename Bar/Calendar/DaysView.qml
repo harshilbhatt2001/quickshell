@@ -27,8 +27,8 @@ Item {
 	}
 	return d;
   }
-  readonly property double gutter: 30
-  readonly property double headerHeight: 30
+  readonly property double gutter: 42
+  readonly property double headerHeight: 40
   // Hours shown: 8–20 unless an event falls outside that.
   readonly property int hourEnd: {
 	let h = 20;
@@ -49,7 +49,7 @@ Item {
 	return h;
   }
   property date now: new Date()
-  readonly property double pxPerHour: 16
+  readonly property double pxPerHour: 30
   property date selected: new Date()
   readonly property string title: {
 	if (root.days === 1) {
@@ -176,9 +176,9 @@ Item {
 		Rectangle {
 		  anchors.horizontalCenter: parent.horizontalCenter
 		  color: column.isToday ? Colors.base : "transparent"
-		  height: 18
-		  radius: 9
-		  width: Math.min(column.width - 4, dayLabel.implicitWidth + 12)
+		  height: 22
+		  radius: 11
+		  width: Math.min(column.width - 4, dayLabel.implicitWidth + 16)
 		  y: 0
 
 		  StyledText {
@@ -186,7 +186,7 @@ Item {
 
 			anchors.centerIn: parent
 			color: column.isToday ? Colors.mauve : Colors.base
-			fontSize: 8
+			fontSize: 10
 			fontWeight: column.isToday ? 8 : 6
 			text: (root.days === 7 ? Qt.formatDate(column.day, "ddd").slice(0, 2) : Qt.formatDate(column.day,
 																								  "ddd")) + " " + column.day.getDate()
@@ -198,18 +198,18 @@ Item {
 		  anchors.right: parent.right
 		  anchors.rightMargin: 2
 		  color: Colors.base
-		  height: 10
+		  height: 14
 		  opacity: 0.85
-		  radius: 3
+		  radius: 4
 		  visible: column.allDay.length > 0
-		  y: 19
+		  y: 24
 
 		  StyledText {
 			anchors.fill: parent
 			anchors.leftMargin: 3
 			anchors.rightMargin: 3
 			color: Colors.mauve
-			fontSize: 6
+			fontSize: 8
 			fontWeight: 6
 			text: column.allDay.length > 1 ? column.allDay[0].title + " +" + (column.allDay.length - 1) : (
 											   column.allDay[0] ? column.allDay[0].title : "")
@@ -275,9 +275,9 @@ Item {
 				anchors.rightMargin: 2
 				anchors.topMargin: 1
 				color: Colors.text
-				fontSize: 6
+				fontSize: 8
 				fontWeight: 6
-				maximumLineCount: Math.max(1, Math.floor((block.height - 2) / 10))
+				maximumLineCount: Math.max(1, Math.floor((block.height - 2) / 13))
 				text: block.modelData.event.title
 				wrapMode: Text.Wrap
 			  }
@@ -319,7 +319,7 @@ Item {
 	  opacity: 0.6
 	  text: (root.hourStart + index < 10 ? "0" : "") + (root.hourStart + index) + ":00"
 	  width: root.gutter - 4
-	  y: root.headerHeight + index * root.pxPerHour - 4
+	  y: root.headerHeight + index * root.pxPerHour - 6
 	}
   }
 }

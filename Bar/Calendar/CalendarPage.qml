@@ -17,7 +17,7 @@ Item {
   property date createStart: new Date()
   property var editingEvent: null
   property bool editorOpen: false
-  property double margin: 8
+  property double margin: 10
   property date selected: new Date()
   property string view: "month"
   readonly property var viewOrder: ["day", "3day", "week", "month"]
@@ -44,7 +44,7 @@ Item {
   }
 
   implicitHeight: column.implicitHeight + root.margin * 2
-  implicitWidth: 460
+  implicitWidth: 680
 
   onAnchorChanged: CalendarManager.anchor = root.anchor
 
@@ -90,7 +90,7 @@ Item {
 
 	  HeaderButton {
 		Layout.fillWidth: true
-		fontSize: 11
+		fontSize: 13
 		text: root.editorOpen ? (root.editingEvent ? "Edit event" : "New event") : (viewLoader.item
 																					? viewLoader.item.title : "")
 
@@ -190,8 +190,8 @@ Item {
 	signal clicked
 
 	color: buttonHover.hovered ? Qt.alpha(Colors.base, 0.12) : "transparent"
-	implicitHeight: 22
-	implicitWidth: Math.max(26, label.implicitWidth + 12)
+	implicitHeight: 26
+	implicitWidth: Math.max(30, label.implicitWidth + 14)
 	radius: 6
 
 	Behavior on color {
@@ -213,7 +213,7 @@ Item {
 
 	  anchors.centerIn: parent
 	  color: Colors.base
-	  fontSize: 11
+	  fontSize: 12
 	}
   }
 }

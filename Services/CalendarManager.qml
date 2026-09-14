@@ -22,7 +22,8 @@ Singleton {
   // [{ start: Date, end: Date, allDay: bool, title: string, calendar: string }]
   // sorted by start. All-day `end` is exclusive, as Google reports it.
   property var events: []
-  property var excludedCalendars: ["Makerspace Delft Bookings", "Makerspace Delft Events", "Premier League"]
+  property var excludedCalendars: ["Makerspace Delft Bookings", "Makerspace Delft Events",
+	"Premier League"]
   readonly property date rangeEnd: new Date(root.anchor.getFullYear(), root.anchor.getMonth() + 2,
 											1)
 
@@ -113,6 +114,7 @@ Singleton {
   function editEvent(event, title, start, end) {
 	const sameTime = event.start.getTime() === start.getTime() && event.end.getTime() === end.getTime(
 			);
+
 
 	if (sameTime) {
 	  root._run("printf '%s' \"$5\" | exec gcalcli --calendar \"$1\" edit \"$2\" \"$3\" \"$4\"",

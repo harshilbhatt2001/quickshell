@@ -10,11 +10,12 @@ ColumnLayout {
   id: root
 
   property date anchor: new Date()
-  readonly property double cellHeight: 28
+  readonly property double cellHeight: 58
   readonly property double cellWidth: root.width / 7
   // JS weekday (Sunday = 0) the grid starts on.
   readonly property int firstWeekday: Qt.locale().firstDayOfWeek % 7
-  readonly property int listedEvents: 4
+  readonly property int inlineEvents: 2
+  readonly property int listedEvents: 5
   property date selected: new Date()
   readonly property var selectedEvents: CalendarManager.eventsOn(root.selected)
   readonly property string title: Qt.formatDate(root.anchor, "MMMM yyyy")
@@ -40,7 +41,7 @@ ColumnLayout {
 	root.anchorRequested(new Date(root.anchor.getFullYear(), root.anchor.getMonth() + n, 1));
   }
 
-  spacing: 2
+  spacing: 4
 
   Row {
 	Layout.alignment: Qt.AlignHCenter
@@ -52,8 +53,8 @@ ColumnLayout {
 		required property int index
 
 		color: Colors.surface1
-		fontSize: 9
-		height: 18
+		fontSize: 10
+		height: 22
 		horizontalAlignment: Qt.AlignHCenter
 		text: {
 		  const js = (root.firstWeekday + index) % 7;
@@ -76,13 +77,14 @@ ColumnLayout {
 		id: cell
 
 		readonly property date day: root.dayAt(index)
-		readonly property bool hasEvents: CalendarManager.hasEventsOn(cell.day)
+		readonly property var events: CalendarManager.eventsOn(cell.day)
 		readonly property bool inMonth: cell.day.getMonth() === root.anchor.getMonth()
 		required property int index
 		readonly property bool isSelected: root.sameDay(cell.day, root.selected)
 		readonly property bool isToday: root.sameDay(cell.day, root.today)
 
 		height: root.cellHeight
+		opacity: cell.inMonth ? 1 : 0.35
 		width: root.cellWidth
 
 		HoverHandler {
@@ -90,48 +92,74 @@ ColumnLayout {
 		}
 
 		TapHandler {
+		  onDoubleTapped: {
+			if (CalendarManager.available) {
+			  root.createRequested(new Date(cell.day.getFullYear(), cell.day.getMonth(), cell.day.getDate(), 9,
+											0));
+			}
+		  }
 		  onTapped: root.selectRequested(cell.day)
 		}
 
 		Rectangle {
-		  anchors.centerIn: parent
+		  anchors.fill: parent
+		  anchors.margins: 2
 		  border.color: Colors.base
-		  border.width: cell.isSelected && !cell.isToday ? 1 : 0
-		  color: cell.isToday ? Colors.base : (cellHover.hovered ? Qt.alpha(Colors.base, 0.12) :
-																   "transparent")
-		  height: 22
-		  radius: 11
-		  width: 30
+		  border.width: cell.isSelected ? 1 : 0
+		  color: cellHover.hovered ? Qt.alpha(Colors.base, 0.08) : "transparent"
+		  radius: 8
 
 		  Behavior on color {
 			ColorAnimation {
 			  duration: 120
 			}
 		  }
+		}
+
+		Rectangle {
+		  id: pill
+
+		  anchors.horizontalCenter: parent.horizontalCenter
+		  color: cell.isToday ? Colors.base : "transparent"
+		  height: 22
+		  radius: 11
+		  width: 28
+		  y: 4
 
 		  StyledText {
 			anchors.centerIn: parent
 			color: cell.isToday ? Colors.mauve : Colors.base
-			fontSize: 10
+			fontSize: 11
 			fontWeight: cell.isToday || cell.isSelected ? 8 : 5
-			opacity: cell.inMonth ? 1 : 0.35
 			text: cell.day.getDate()
 		  }
 		}
 
-		Rectangle {
-		  anchors.bottom: parent.bottom
-		  anchors.bottomMargin: 1
-		  anchors.horizontalCenter: parent.horizontalCenter
-		  color: Colors.base
-		  height: 3
-		  opacity: cell.hasEvents ? (cell.inMonth ? 1 : 0.35) : 0
-		  radius: 1.5
-		  width: 3
+		Column {
+		  anchors.left: parent.left
+		  anchors.leftMargin: 6
+		  anchors.right: parent.right
+		  anchors.rightMargin: 6
+		  anchors.top: pill.bottom
+		  anchors.topMargin: 2
+		  spacing: 1
 
-		  Behavior on opacity {
-			NumberAnimation {
-			  duration: 120
+		  Repeater {
+			model: cell.events.slice(0, root.inlineEvents)
+
+			StyledText {
+			  required property int index
+			  required property var modelData
+
+			  color: Colors.base
+			  fontSize: 7
+			  fontWeight: 6
+			  text: {
+				const extra = cell.events.length - root.inlineEvents;
+				const more = index === root.inlineEvents - 1 && extra > 0 ? "  +" + extra : "";
+				return "· " + modelData.title + more;
+			  }
+			  width: parent.width
 			}
 		  }
 		}
@@ -141,15 +169,15 @@ ColumnLayout {
 
   Rectangle {
 	Layout.fillWidth: true
-	Layout.topMargin: 4
+	Layout.topMargin: 6
 	color: Colors.base
-	implicitHeight: root.listedEvents * 20 + 8
-	radius: 8
+	implicitHeight: root.listedEvents * 24 + 12
+	radius: 10
 	visible: CalendarManager.available
 
 	Column {
 	  anchors.fill: parent
-	  anchors.margins: 4
+	  anchors.margins: 6
 	  spacing: 0
 
 	  Repeater {
@@ -162,8 +190,8 @@ ColumnLayout {
 		  required property var modelData
 
 		  color: rowHover.hovered ? Colors.surface0 : "transparent"
-		  height: 20
-		  radius: 5
+		  height: 24
+		  radius: 6
 		  width: parent.width
 
 		  Behavior on color {
@@ -182,23 +210,24 @@ ColumnLayout {
 
 		  RowLayout {
 			anchors.fill: parent
-			spacing: 8
+			spacing: 10
 
 			StyledText {
-			  Layout.leftMargin: 4
-			  Layout.preferredWidth: 50
+			  Layout.leftMargin: 6
+			  Layout.preferredWidth: 96
 			  color: Colors.subtext0
-			  fontSize: 9
+			  fontSize: 10
 			  fontWeight: 5
 			  text: eventRow.modelData.allDay ? "all day" : Qt.formatTime(eventRow.modelData.start, "HH:mm")
+												+ " – " + Qt.formatTime(eventRow.modelData.end, "HH:mm")
 			  verticalAlignment: Qt.AlignVCenter
 			}
 
 			StyledText {
 			  Layout.fillWidth: true
-			  Layout.rightMargin: 4
+			  Layout.rightMargin: 6
 			  color: Colors.text
-			  fontSize: 9
+			  fontSize: 10
 			  fontWeight: 6
 			  text: {
 				const extra = root.selectedEvents.length - root.listedEvents;
@@ -209,16 +238,25 @@ ColumnLayout {
 			  }
 			  verticalAlignment: Qt.AlignVCenter
 			}
+
+			StyledText {
+			  Layout.rightMargin: 8
+			  color: Colors.overlay0
+			  fontSize: 9
+			  fontWeight: 5
+			  text: eventRow.modelData.calendar.indexOf("@") !== -1 ? "" : eventRow.modelData.calendar
+			  verticalAlignment: Qt.AlignVCenter
+			}
 		  }
 		}
 	  }
 
 	  StyledText {
 		color: Colors.overlay0
-		fontSize: 9
+		fontSize: 10
 		fontWeight: 5
-		height: 20
-		leftPadding: 8
+		height: 24
+		leftPadding: 10
 		text: "No events"
 		verticalAlignment: Qt.AlignVCenter
 		visible: root.selectedEvents.length === 0
