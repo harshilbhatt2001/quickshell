@@ -49,7 +49,7 @@ Item {
 	return h;
   }
   property date now: new Date()
-  readonly property double pxPerHour: 14
+  readonly property double pxPerHour: 16
   property date selected: new Date()
   readonly property string title: {
 	if (root.days === 1) {
@@ -67,6 +67,8 @@ Item {
   }
 
   signal anchorRequested(date day)
+  signal createRequested(date start)
+  signal eventRequested(var event)
   signal selectRequested(date day)
 
   // Lays out one day's timed events into side-by-side lanes where they overlap.
@@ -157,7 +159,18 @@ Item {
 		width: columns.columnWidth
 
 		TapHandler {
-		  onTapped: root.selectRequested(column.day)
+		  onTapped: eventPoint => {
+			root.selectRequested(column.day);
+			const p = grid.mapFromItem(column, eventPoint.position);
+			const hit = grid.childAt(p.x, p.y);
+			if (hit && hit.objectName === "event") {
+			  root.eventRequested(hit.modelData.event);
+			} else if (p.y >= 0 && CalendarManager.available) {
+			  const halfHours = Math.floor(p.y / root.pxPerHour * 2);
+			  root.createRequested(new Date(column.day.getFullYear(), column.day.getMonth(),
+											column.day.getDate(), root.hourStart, halfHours * 30));
+			}
+		  }
 		}
 
 		Rectangle {
@@ -244,12 +257,17 @@ Item {
 			  readonly property double laneWidth: (grid.width - 3) / block.modelData.lanes
 			  required property var modelData
 
-			  color: Colors.base
+			  color: block.hovered ? Colors.surface0 : Colors.base
 			  height: Math.max(8, root.yFor(block.modelData.event.end, column.day) - block.y - 1)
+			  objectName: "event"
 			  radius: 3
 			  width: block.laneWidth - 1
 			  x: 2 + block.modelData.lane * block.laneWidth
 			  y: root.yFor(block.modelData.event.start, column.day)
+
+			  HoverHandler {
+				id: blockHover
+			  }
 
 			  StyledText {
 				anchors.fill: parent

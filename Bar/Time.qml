@@ -22,6 +22,7 @@ Container {
   property Notification latestNotif
   required property HyprlandMonitor monitor
   property double mprisHeight: 64
+  property double mprisWidth: 350
   property double notificationHeight: 100
   property double notificationWidth: 350
   property bool notified: false
@@ -99,7 +100,7 @@ Container {
   onHoveredChanged: {
 	if (root.hovered) {
 	  root.openIsland();
-	} else if (root.island) {
+	} else if (root.island && !CalendarManager.editing) {
 	  root.closeIsland();
 	}
   }
@@ -119,6 +120,16 @@ Container {
 	}
 
 	target: NotificationManager
+  }
+
+  Connections {
+	function onEditingChanged() {
+	  if (!CalendarManager.editing && root.island && !root.hovered) {
+		root.closeIsland();
+	  }
+	}
+
+	target: CalendarManager
   }
 
   Connections {
@@ -193,6 +204,13 @@ Container {
 		property: "islandHeight"
 		target: root
 		value: swipe.currentItem ? swipe.currentItem.implicitHeight : root.mprisHeight
+	  }
+
+	  Binding {
+		property: "islandWidth"
+		target: root
+		value: swipe.currentItem && swipe.currentItem.implicitWidth > 0 ? swipe.currentItem.implicitWidth :
+																		  root.mprisWidth
 	  }
 
 	  Connections {
@@ -378,8 +396,8 @@ Container {
 	  property double innerMargin: 4
 	  property double outerMargin: 6
 	  property int pendingButton: Qt.NoButton
-	  property double textWidth: root.islandWidth - ((mprisToastRoot.outerMargin * 2) + (
-													   mprisToastRoot.innerMargin * 5) + mprisToastRoot.getInnerHeight())
+	  property double textWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (mprisToastRoot.innerMargin
+																						* 5) + mprisToastRoot.getInnerHeight())
 	  property var trackInfo: MprisManager.getTrackInfo()
 
 	  function getInnerHeight() {
@@ -390,6 +408,7 @@ Container {
 	  }
 
 	  implicitHeight: root.mprisHeight
+	  implicitWidth: root.mprisWidth
 
 	  // Keep the position (and thus the progress bar) ticking while the toast
 	  // is visible; Quickshell only re-reads it when asked.

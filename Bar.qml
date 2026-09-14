@@ -3,7 +3,9 @@ import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Wayland
 import "./Bar"
+import "./Services" as Services
 import "Color.js" as Colors
 
 Scope {
@@ -20,6 +22,9 @@ Scope {
 	  required property var modelData
 	  property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
 
+	  // Only while the calendar editor is open, so typing lands in it.
+	  WlrLayershell.keyboardFocus: Services.CalendarManager.editing ? WlrKeyboardFocus.Exclusive :
+																	  WlrKeyboardFocus.None
 	  color: "transparent"
 	  exclusionMode: ExclusionMode.Normal
 	  exclusiveZone: barExclusionZone
