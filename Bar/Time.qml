@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
@@ -21,8 +22,8 @@ Container {
   property double islandWidth: 350
   property Notification latestNotif
   required property HyprlandMonitor monitor
-  property double mprisHeight: 64
-  property double mprisWidth: 350
+  property double mprisHeight: 76
+  property double mprisWidth: 380
   property double notificationHeight: 100
   property double notificationWidth: 350
   property bool notified: false
@@ -394,19 +395,12 @@ Container {
 	Item {
 	  id: mprisToastRoot
 
-	  property double innerMargin: 4
-	  property double outerMargin: 6
+	  readonly property double artSize: root.mprisHeight - mprisToastRoot.margin * 2
+	  readonly property double margin: 10
 	  property int pendingButton: Qt.NoButton
-	  property double textWidth: root.mprisWidth - ((mprisToastRoot.outerMargin * 2) + (mprisToastRoot.innerMargin
-																						* 5) + mprisToastRoot.getInnerHeight())
+	  readonly property var times: mprisToastRoot.trackInfo
+								   ? mprisToastRoot.trackInfo["timeString"].split("/") : []
 	  property var trackInfo: MprisManager.getTrackInfo()
-
-	  function getInnerHeight() {
-		let fullHeight = root.mprisHeight;
-		let fullMargin = mprisToastRoot.innerMargin + mprisToastRoot.outerMargin;
-
-		return fullHeight - (fullMargin * 2);
-	  }
 
 	  implicitHeight: root.mprisHeight
 	  implicitWidth: root.mprisWidth
@@ -461,100 +455,139 @@ Container {
 		}
 	  }
 
-	  Rectangle {
-		color: Colors.surface0
-		radius: 9
+	  RowLayout {
+		spacing: 12
 
 		anchors {
 		  fill: parent
-		  margins: mprisToastRoot.outerMargin
+		  margins: mprisToastRoot.margin
 		}
 
-		RowLayout {
-		  Rectangle {
-			Layout.margins: mprisToastRoot.innerMargin
-			clip: true
-			color: Colors.surface1
-			implicitHeight: mprisToastRoot.getInnerHeight()
-			implicitWidth: mprisToastRoot.getInnerHeight()
-			radius: 5
+		Rectangle {
+		  id: art
 
-			IconImage {
-			  anchors.fill: parent
-			  source: mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["albumArt"] : ""
+		  Layout.preferredHeight: mprisToastRoot.artSize
+		  Layout.preferredWidth: mprisToastRoot.artSize
+		  clip: true
+		  color: Colors.surface1
+		  radius: 10
+
+		  Rectangle {
+			id: artMask
+
+			anchors.fill: parent
+			layer.enabled: true
+			radius: art.radius
+			visible: false
+		  }
+
+		  StyledText {
+			anchors.centerIn: parent
+			color: Colors.overlay1
+			fontSize: 18
+			text: "󰝚"
+			visible: !cover.source || cover.status !== Image.Ready
+		  }
+
+		  IconImage {
+			id: cover
+
+			anchors.fill: parent
+			layer.enabled: true
+			opacity: MprisManager.isPlaying ? 1 : 0.35
+			source: mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["albumArt"] : ""
+
+			layer.effect: MultiEffect {
+			  maskEnabled: true
+			  maskSource: artMask
+			}
+			Behavior on opacity {
+			  NumberAnimation {
+				duration: 200
+			  }
 			}
 		  }
 
-		  ColumnLayout {
-			property double textMargin: 1
+		  StyledText {
+			anchors.centerIn: parent
+			color: Colors.text
+			fontSize: 16
+			opacity: MprisManager.isPlaying ? 0 : 1
+			text: "󰐊"
 
-			Layout.alignment: Qt.AlignVCenter
+			Behavior on opacity {
+			  NumberAnimation {
+				duration: 200
+			  }
+			}
+		  }
+		}
+
+		ColumnLayout {
+		  Layout.fillHeight: true
+		  Layout.fillWidth: true
+		  spacing: 2
+
+		  StyledText {
 			Layout.fillWidth: true
-			Layout.leftMargin: 0
-			Layout.margins: mprisToastRoot.innerMargin + textMargin
+			color: Colors.text
+			fontSize: 12
+			fontWeight: 7
+			text: mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["name"] : ""
+		  }
+
+		  StyledText {
+			Layout.fillWidth: true
+			color: Colors.subtext0
+			fontSize: 9
+			fontWeight: 5
+			text: mprisToastRoot.trackInfo ? (mprisToastRoot.trackInfo["artist"]
+											  || mprisToastRoot.trackInfo["album"] || "") : ""
+		  }
+
+		  Item {
+			Layout.fillHeight: true
+		  }
+
+		  RowLayout {
+			Layout.fillWidth: true
+			spacing: 8
 
 			StyledText {
-			  Layout.maximumWidth: mprisToastRoot.textWidth
-			  color: Colors.text
-			  fontSize: 14
-			  text: {
-				if (!mprisToastRoot.trackInfo) {
-				  return "";
+			  color: Colors.overlay1
+			  fontSize: 8
+			  fontWeight: 5
+			  text: mprisToastRoot.times.length === 2 ? mprisToastRoot.times[0] : ""
+			  visible: text.length > 0
+			}
+
+			Rectangle {
+			  Layout.fillWidth: true
+			  color: Colors.surface1
+			  implicitHeight: 3
+			  radius: 1.5
+
+			  Rectangle {
+				color: Colors.mauve
+				height: parent.height
+				radius: 1.5
+				width: parent.width * (mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["lengthPercent"] : 0)
+
+				Behavior on width {
+				  NumberAnimation {
+					duration: 400
+				  }
 				}
-				const name = mprisToastRoot.trackInfo["name"];
-				const artist = mprisToastRoot.trackInfo["artist"];
-				return artist ? name + " - " + artist : name;
 			  }
 			}
 
-			Item {
-			  Layout.fillHeight: true
-			  Layout.fillWidth: true
-			  Layout.maximumWidth: mprisToastRoot.textWidth
-			  Layout.preferredWidth: mprisToastRoot.textWidth
-
-			  Rectangle {
-				anchors.fill: parent
-				color: Colors.surface2
-				radius: 100
-
-				Rectangle {
-				  color: Qt.alpha(Colors.mauve, 0.6)
-				  implicitWidth: parent.width * (mprisToastRoot.trackInfo
-												 ? mprisToastRoot.trackInfo["lengthPercent"] : 0)
-				  radius: 100
-
-				  Behavior on implicitWidth {
-					NumberAnimation {
-					  duration: 200
-					}
-				  }
-
-				  anchors {
-					bottom: parent.bottom
-					left: parent.left
-					top: parent.top
-				  }
-				}
-
-				StyledText {
-				  color: Colors.text
-				  propo: true
-				  text: {
-					if (!mprisToastRoot.trackInfo) {
-					  return "";
-					}
-					const icon = mprisToastRoot.trackInfo["playing"] ? "󰏤" : "󰐊";
-					const time = mprisToastRoot.trackInfo["timeString"];
-					return time ? icon + "  " + time : icon;
-				  }
-
-				  anchors {
-					horizontalCenter: parent.horizontalCenter
-					verticalCenter: parent.verticalCenter
-				  }
-				}
-			  }
+			StyledText {
+			  color: Colors.overlay1
+			  fontSize: 8
+			  fontWeight: 5
+			  text: mprisToastRoot.times.length > 0 ? mprisToastRoot.times[mprisToastRoot.times.length - 1] :
+													  ""
+			  visible: text.length > 0
 			}
 		  }
 		}
