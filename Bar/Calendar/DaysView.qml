@@ -251,7 +251,7 @@ Item {
 			  color: Colors.text
 			  height: 1
 			  opacity: 0.08
-			  width: parent.width
+			  width: parent ? parent.width : 0
 			  y: index * root.pxPerHour
 			}
 		  }
