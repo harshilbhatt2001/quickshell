@@ -395,6 +395,7 @@ Container {
 	Item {
 	  id: mprisToastRoot
 
+	  property color artColor: Colors.text
 	  readonly property double artSize: root.mprisHeight - mprisToastRoot.margin * 2
 	  readonly property double margin: 10
 	  property int pendingButton: Qt.NoButton
@@ -412,6 +413,55 @@ Container {
 		value: mprisToastRoot.visible && MprisManager.isPlaying
 	  }
 
+	  // Dominant album-art colour: average of a 16x16 downscale, weighted by
+	  // saturation so covers with a strong hue tint the bars with it.
+	  Canvas {
+		id: artSampler
+
+		property string url: mprisToastRoot.trackInfo ? (mprisToastRoot.trackInfo["albumArt"] || "") : ""
+
+		height: 16
+		opacity: 0
+		width: 16
+
+		Component.onCompleted: {
+		  if (artSampler.url) {
+			artSampler.loadImage(artSampler.url);
+		  }
+		}
+		onImageLoaded: artSampler.requestPaint()
+		onPaint: {
+		  if (!artSampler.url || !artSampler.isImageLoaded(artSampler.url)) {
+			return;
+		  }
+		  const ctx = artSampler.getContext("2d");
+		  ctx.reset();
+		  ctx.drawImage(artSampler.url, 0, 0, 16, 16);
+		  const d = ctx.getImageData(0, 0, 16, 16).data;
+		  let r = 0, g = 0, b = 0, wsum = 0;
+		  for (let i = 0; i < d.length; i += 4) {
+			const max = Math.max(d[i], d[i + 1], d[i + 2]);
+			const min = Math.min(d[i], d[i + 1], d[i + 2]);
+			const w = 0.05 + (max === 0 ? 0 : (max - min) / max);
+			r += d[i] * w;
+			g += d[i + 1] * w;
+			b += d[i + 2] * w;
+			wsum += w;
+		  }
+		  const c = Qt.rgba(r / wsum / 255, g / wsum / 255, b / wsum / 255, 1);
+		  // Near-black means the sample failed or the cover is dark; keep text.
+		  if (wsum > 0 && Math.max(c.r, c.g, c.b) > 0.12) {
+			mprisToastRoot.artColor = c.hslLightness < 0.5 ? Qt.lighter(c, 1.6) : c;
+		  }
+		}
+		onUrlChanged: {
+		  mprisToastRoot.artColor = Colors.text;
+		  if (artSampler.url) {
+			artSampler.loadImage(artSampler.url);
+		  }
+		}
+	  }
+
 	  // Faint spectrum behind the content.
 	  Row {
 		id: spectrum
@@ -422,7 +472,7 @@ Container {
 		anchors.left: parent.left
 		anchors.right: parent.right
 		height: parent.height
-		opacity: 0.07
+		opacity: 0.18
 
 		Repeater {
 		  model: CavaManager.barCount
@@ -436,7 +486,7 @@ Container {
 			Rectangle {
 			  anchors.bottom: parent.bottom
 			  anchors.horizontalCenter: parent.horizontalCenter
-			  color: Colors.text
+			  color: mprisToastRoot.artColor
 			  height: spectrum.height * (CavaManager.bars[parent.index] || 0)
 			  radius: 1
 			  width: spectrum.barWidth - 2
