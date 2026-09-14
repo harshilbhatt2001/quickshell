@@ -206,6 +206,7 @@ Container {
 	  // Thumb (horizontal) wheel only; the vertical wheel is left alone.
 	  WheelHandler {
 		acceptedDevices: PointerDevice.Mouse
+		orientation: Qt.Horizontal
 
 		onWheel: event => {
 		  if (event.angleDelta.x !== 0) {
@@ -225,6 +226,7 @@ Container {
 
 		anchors.fill: parent
 		clip: true
+		hoverEnabled: false
 		interactive: false
 
 		Component.onCompleted: swipe.setCurrentIndex(root.islandPage)
