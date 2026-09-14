@@ -103,7 +103,7 @@ Singleton {
 	// `command -v` first so a machine without gcalcli fails quietly (exit 3)
 	// instead of logging "command not found" every five minutes.
 	command: ["sh", "-c",
-	  "command -v gcalcli >/dev/null 2>&1 || exit 3; exec gcalcli --tsv agenda \"$1\" \"$2\"",
+	  "command -v gcalcli >/dev/null 2>&1 || exit 3; exec gcalcli agenda --tsv \"$1\" \"$2\"",
 	  "gcalcli", root._ymd(root.rangeStart), root._ymd(root.rangeEnd)]
 	running: true
 
