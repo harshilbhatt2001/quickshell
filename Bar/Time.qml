@@ -609,13 +609,21 @@ Container {
 				ctx.stroke();
 
 				if (head > 0) {
+				  // Fades and slows with distance behind the head: the wavelength
+				  // grows linearly, so the angle is its log integral (keeps the
+				  // scroll coherent as the head moves).
 				  const grad = ctx.createLinearGradient(0, 0, head, 0);
-				  grad.addColorStop(0, "#5277c3");
+				  grad.addColorStop(0, "rgba(82, 119, 195, 0.08)");
+				  grad.addColorStop(0.6, "rgba(82, 119, 195, 0.6)");
 				  grad.addColorStop(1, "#7ebae4");
 				  ctx.strokeStyle = grad;
 				  ctx.beginPath();
+				  const baseWavelength = 10;
+				  const stretch = 40;
 				  for (let x = 0; x <= head; x += 1) {
-					const y = mid + Math.sin(x / 12 * 2 * Math.PI + wave.phase) * wave.amplitude;
+					const d = head - x;
+					const angle = 2 * Math.PI * stretch / baseWavelength * Math.log(1 + d / stretch);
+					const y = mid + Math.sin(wave.phase - angle) * wave.amplitude;
 					if (x === 0) {
 					  ctx.moveTo(x, y);
 					} else {
