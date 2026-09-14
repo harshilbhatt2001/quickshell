@@ -97,7 +97,6 @@ Container {
   ]
 
   onHoveredChanged: {
-	console.log("DBG hovered=" + root.hovered);
 	if (root.hovered) {
 	  root.openIsland();
 	} else if (root.island) {
@@ -159,13 +158,6 @@ Container {
 	}
   }
 
-  WheelHandler {
-	acceptedDevices: PointerDevice.AllDevices
-	orientation: Qt.Horizontal | Qt.Vertical
-
-	onWheel: event => console.log("DBG root wheel x=" + event.angleDelta.x + " y=" + event.angleDelta.y + " px=" + event.pixelDelta.x + " dev=" + event.device.type)
-  }
-
   Timer {
 	id: islandTimer
 
@@ -211,13 +203,13 @@ Container {
 		target: root
 	  }
 
-	  // Thumb (horizontal) wheel only; the vertical wheel is left alone.
+	  // Thumb (horizontal) wheel only. Qt Wayland reports Hyprland axis events
+	  // as TouchPad, not Mouse, so don't filter on device.
 	  WheelHandler {
-		acceptedDevices: PointerDevice.Mouse
+		acceptedDevices: PointerDevice.AllDevices
 		orientation: Qt.Horizontal
 
 		onWheel: event => {
-		  console.log("DBG island wheel x=" + event.angleDelta.x + " y=" + event.angleDelta.y);
 		  if (event.angleDelta.x !== 0) {
 			islandRoot.scroll(event.angleDelta.x < 0 ? 1 : -1);
 		  }
