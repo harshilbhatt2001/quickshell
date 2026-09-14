@@ -561,24 +561,78 @@ Container {
 			  visible: text.length > 0
 			}
 
-			Rectangle {
+			// Android-style wavy progress: the played part is a moving sine wave
+			// in the Nix logo's blues, the rest a flat line. Flattens when paused.
+			Canvas {
+			  id: wave
+
+			  property double amplitude: MprisManager.isPlaying ? 2.5 : 0
+			  property double phase: 0
+			  property double progress: mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["lengthPercent"] :
+																   0
+
 			  Layout.fillWidth: true
-			  color: Colors.surface1
-			  implicitHeight: 3
-			  radius: 1.5
+			  implicitHeight: 12
 
-			  Rectangle {
-				color: Colors.mauve
-				height: parent.height
-				radius: 1.5
-				width: parent.width * (mprisToastRoot.trackInfo ? mprisToastRoot.trackInfo["lengthPercent"] : 0)
-
-				Behavior on width {
-				  NumberAnimation {
-					duration: 400
-				  }
+			  Behavior on amplitude {
+				NumberAnimation {
+				  duration: 300
 				}
 			  }
+			  NumberAnimation on phase {
+				duration: 1200
+				from: 0
+				loops: Animation.Infinite
+				running: MprisManager.isPlaying && mprisToastRoot.visible
+				to: 2 * Math.PI
+			  }
+			  Behavior on progress {
+				NumberAnimation {
+				  duration: 400
+				}
+			  }
+
+			  onAmplitudeChanged: wave.requestPaint()
+			  onPaint: {
+				const ctx = wave.getContext("2d");
+				const w = wave.width;
+				const mid = wave.height / 2;
+				const head = Math.max(0, Math.min(w, w * wave.progress));
+				ctx.reset();
+				ctx.lineWidth = 2;
+				ctx.lineCap = "round";
+
+				ctx.strokeStyle = Colors.surface1;
+				ctx.beginPath();
+				ctx.moveTo(head, mid);
+				ctx.lineTo(w, mid);
+				ctx.stroke();
+
+				if (head > 0) {
+				  const grad = ctx.createLinearGradient(0, 0, head, 0);
+				  grad.addColorStop(0, "#5277c3");
+				  grad.addColorStop(1, "#7ebae4");
+				  ctx.strokeStyle = grad;
+				  ctx.beginPath();
+				  for (let x = 0; x <= head; x += 1) {
+					const y = mid + Math.sin(x / 12 * 2 * Math.PI + wave.phase) * wave.amplitude;
+					if (x === 0) {
+					  ctx.moveTo(x, y);
+					} else {
+					  ctx.lineTo(x, y);
+					}
+				  }
+				  ctx.stroke();
+				}
+
+				ctx.fillStyle = "#7ebae4";
+				ctx.beginPath();
+				ctx.arc(head, mid, 2.5, 0, 2 * Math.PI);
+				ctx.fill();
+			  }
+			  onPhaseChanged: wave.requestPaint()
+			  onProgressChanged: wave.requestPaint()
+			  onWidthChanged: wave.requestPaint()
 			}
 
 			StyledText {
