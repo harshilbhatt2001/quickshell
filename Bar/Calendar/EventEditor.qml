@@ -55,7 +55,7 @@ Rectangle {
 	root.done();
   }
 
-  color: Colors.base
+  color: Colors.surface0
   implicitHeight: column.implicitHeight + 20
   radius: 12
 
@@ -232,9 +232,9 @@ Rectangle {
 	  input.forceActiveFocus();
 	}
 
-	border.color: input.activeFocus ? Colors.mauve : Colors.surface1
+	border.color: input.activeFocus ? Colors.mauve : Colors.surface2
 	border.width: 1
-	color: Colors.surface0
+	color: Colors.surface1
 	implicitHeight: 28
 	radius: 7
 

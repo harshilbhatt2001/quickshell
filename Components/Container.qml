@@ -207,6 +207,11 @@ Item {
 	color: root.boxColor
 	radius: root.boxRadius
 
+	Behavior on color {
+	  ColorAnimation {
+		duration: 250
+	  }
+	}
 	Behavior on radius {
 	  NumberAnimation {
 		duration: 300

@@ -65,7 +65,7 @@ ColumnLayout {
 	  StyledText {
 		required property int index
 
-		color: Colors.surface1
+		color: Colors.overlay0
 		fontSize: 10
 		height: 22
 		horizontalAlignment: Qt.AlignHCenter
@@ -119,9 +119,9 @@ ColumnLayout {
 		Rectangle {
 		  anchors.fill: parent
 		  anchors.margins: 2
-		  border.color: Colors.base
+		  border.color: Colors.overlay0
 		  border.width: cell.isSelected ? 1 : 0
-		  color: cellHover.hovered ? Qt.alpha(Colors.base, 0.08) : "transparent"
+		  color: cellHover.hovered ? Qt.alpha(Colors.text, 0.06) : "transparent"
 		  radius: 8
 
 		  Behavior on color {
@@ -135,7 +135,7 @@ ColumnLayout {
 		  id: pill
 
 		  anchors.horizontalCenter: parent.horizontalCenter
-		  color: cell.isToday ? Colors.base : "transparent"
+		  color: cell.isToday ? Colors.mauve : "transparent"
 		  height: 22
 		  radius: 11
 		  width: 28
@@ -143,7 +143,7 @@ ColumnLayout {
 
 		  StyledText {
 			anchors.centerIn: parent
-			color: cell.isToday ? Colors.mauve : Colors.base
+			color: cell.isToday ? Colors.base : Colors.text
 			fontSize: cell.isToday ? 12 : 11
 			fontWeight: cell.isToday ? 9 : (cell.isSelected ? 7 : 5)
 			text: cell.day.getDate()
@@ -166,7 +166,7 @@ ColumnLayout {
 			  required property int index
 			  required property var modelData
 
-			  color: Colors.base
+			  color: cell.isToday ? Colors.text : Colors.subtext1
 			  fontSize: 7
 			  fontWeight: cell.isToday ? 8 : 6
 			  opacity: cell.isToday && modelData.end < root.now ? 0.45 : 1
@@ -186,7 +186,7 @@ ColumnLayout {
   Rectangle {
 	Layout.fillWidth: true
 	Layout.topMargin: 6
-	color: Colors.base
+	color: Colors.surface0
 	implicitHeight: root.listedEvents * 24 + 12
 	radius: 10
 	visible: CalendarManager.available
@@ -207,7 +207,7 @@ ColumnLayout {
 		  readonly property bool isPast: eventRow.modelData.end < root.now
 		  required property var modelData
 
-		  color: rowHover.hovered ? Colors.surface0 : "transparent"
+		  color: rowHover.hovered ? Colors.surface1 : "transparent"
 		  height: 24
 		  opacity: eventRow.isPast ? 0.45 : 1
 		  radius: 6

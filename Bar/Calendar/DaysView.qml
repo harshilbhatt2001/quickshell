@@ -183,7 +183,7 @@ Item {
 
 		Rectangle {
 		  anchors.horizontalCenter: parent.horizontalCenter
-		  color: column.isToday ? Colors.base : "transparent"
+		  color: column.isToday ? Colors.mauve : "transparent"
 		  height: 22
 		  radius: 11
 		  width: Math.min(column.width - 4, dayLabel.implicitWidth + 16)
@@ -193,7 +193,7 @@ Item {
 			id: dayLabel
 
 			anchors.centerIn: parent
-			color: column.isToday ? Colors.mauve : Colors.base
+			color: column.isToday ? Colors.base : Colors.text
 			fontSize: column.isToday ? 11 : 10
 			fontWeight: column.isToday ? 9 : 6
 			text: (root.days === 7 ? Qt.formatDate(column.day, "ddd").slice(0, 2) : Qt.formatDate(column.day,
@@ -205,9 +205,9 @@ Item {
 		  anchors.left: parent.left
 		  anchors.right: parent.right
 		  anchors.rightMargin: 2
-		  color: Colors.base
+		  color: Colors.surface1
 		  height: 14
-		  opacity: 0.85
+		  opacity: 1
 		  radius: 4
 		  visible: column.allDay.length > 0
 		  y: 24
@@ -216,7 +216,7 @@ Item {
 			anchors.fill: parent
 			anchors.leftMargin: 3
 			anchors.rightMargin: 3
-			color: Colors.mauve
+			color: Colors.text
 			fontSize: 8
 			fontWeight: 6
 			text: column.allDay.length > 1 ? column.allDay[0].title + " +" + (column.allDay.length - 1) : (
@@ -236,9 +236,9 @@ Item {
 
 		  Rectangle {
 			anchors.left: parent.left
-			color: Colors.base
+			color: Colors.text
 			height: parent.height
-			opacity: 0.15
+			opacity: 0.12
 			width: 1
 		  }
 
@@ -248,9 +248,9 @@ Item {
 			Rectangle {
 			  required property int index
 
-			  color: Colors.base
+			  color: Colors.text
 			  height: 1
-			  opacity: 0.12
+			  opacity: 0.08
 			  width: parent.width
 			  y: index * root.pxPerHour
 			}
@@ -269,7 +269,7 @@ Item {
 			  readonly property double laneWidth: (grid.width - 3) / block.modelData.lanes
 			  required property var modelData
 
-			  color: block.hovered ? Colors.surface0 : Colors.base
+			  color: block.hovered ? Colors.surface2 : Colors.surface1
 			  height: Math.max(8, root.yFor(block.modelData.event.end, column.day) - block.y - 1)
 			  objectName: "event"
 			  opacity: block.isPast ? 0.45 : 1
@@ -299,9 +299,9 @@ Item {
 
 		  // Elapsed hours today fade under the island's own background.
 		  Rectangle {
-			color: Colors.mauve
+			color: Colors.base
 			height: root.yFor(root.now, column.day)
-			opacity: 0.4
+			opacity: 0.5
 			visible: column.isToday
 			width: parent.width
 		  }
@@ -334,11 +334,11 @@ Item {
 	StyledText {
 	  required property int index
 
-	  color: Colors.base
-	  fontSize: 6
+	  color: Colors.subtext0
+	  fontSize: 8
 	  fontWeight: 5
 	  horizontalAlignment: Qt.AlignRight
-	  opacity: 0.6
+	  opacity: 0.8
 	  text: (root.hourStart + index < 10 ? "0" : "") + (root.hourStart + index) + ":00"
 	  width: root.gutter - 4
 	  y: root.headerHeight + index * root.pxPerHour - 6

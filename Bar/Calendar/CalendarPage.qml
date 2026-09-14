@@ -18,6 +18,7 @@ Item {
   property var editingEvent: null
   property bool editorOpen: false
   property double margin: 10
+  readonly property color pageColor: Colors.base
   property date selected: new Date()
   property string view: "month"
   readonly property var viewOrder: ["day", "3day", "week", "month"]
@@ -189,7 +190,7 @@ Item {
 
 	signal clicked
 
-	color: buttonHover.hovered ? Qt.alpha(Colors.base, 0.12) : "transparent"
+	color: buttonHover.hovered ? Qt.alpha(Colors.text, 0.08) : "transparent"
 	implicitHeight: 26
 	implicitWidth: Math.max(30, label.implicitWidth + 14)
 	radius: 6
@@ -212,7 +213,7 @@ Item {
 	  id: label
 
 	  anchors.centerIn: parent
-	  color: Colors.base
+	  color: Colors.text
 	  fontSize: 12
 	}
   }

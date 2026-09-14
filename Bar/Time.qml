@@ -16,7 +16,10 @@ Container {
   id: root
 
   property bool island: false
+  property color islandColor: Colors.mauve
   property double islandHeight: root.mprisHeight
+  readonly property color islandInk: Qt.colorEqual(root.islandColor, Colors.base) ? Colors.text :
+																					Colors.base
   property int islandPage: 0
   property double islandWidth: 350
   property Notification latestNotif
@@ -83,6 +86,7 @@ Container {
 	  when: root.island == true && (root.hovered || MprisManager.hasMedia)
 
 	  PropertyChanges {
+		root.boxColor: root.islandColor
 		root.boxHeight: root.islandHeight
 		root.boxRadius: 12
 		root.boxWidth: root.islandWidth
@@ -207,6 +211,13 @@ Container {
 	  }
 
 	  Binding {
+		property: "islandColor"
+		target: root
+		value: swipe.currentItem && swipe.currentItem.item && swipe.currentItem.item.pageColor
+			   !== undefined ? swipe.currentItem.item.pageColor : Colors.mauve
+	  }
+
+	  Binding {
 		property: "islandWidth"
 		target: root
 		value: swipe.currentItem && swipe.currentItem.implicitWidth > 0 ? swipe.currentItem.implicitWidth :
@@ -275,7 +286,7 @@ Container {
 		  Rectangle {
 			required property int index
 
-			color: Colors.base
+			color: root.islandInk
 			height: 3
 			opacity: index === swipe.currentIndex ? 0.9 : 0.3
 			radius: 1.5
