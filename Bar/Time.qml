@@ -97,6 +97,7 @@ Container {
   ]
 
   onHoveredChanged: {
+	console.log("DBG hovered=" + root.hovered);
 	if (root.hovered) {
 	  root.openIsland();
 	} else if (root.island) {
@@ -158,6 +159,13 @@ Container {
 	}
   }
 
+  WheelHandler {
+	acceptedDevices: PointerDevice.AllDevices
+	orientation: Qt.Horizontal | Qt.Vertical
+
+	onWheel: event => console.log("DBG root wheel x=" + event.angleDelta.x + " y=" + event.angleDelta.y + " px=" + event.pixelDelta.x + " dev=" + event.device.type)
+  }
+
   Timer {
 	id: islandTimer
 
@@ -209,6 +217,7 @@ Container {
 		orientation: Qt.Horizontal
 
 		onWheel: event => {
+		  console.log("DBG island wheel x=" + event.angleDelta.x + " y=" + event.angleDelta.y);
 		  if (event.angleDelta.x !== 0) {
 			islandRoot.scroll(event.angleDelta.x < 0 ? 1 : -1);
 		  }
