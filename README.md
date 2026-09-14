@@ -103,8 +103,8 @@ useless features. Speaking of...
   list its events. Events come from Google Calendar through
   [gcalcli](https://github.com/insanum/gcalcli): install it and run `gcalcli init` once,
   and the calendar picks them up (refreshing every five minutes). Without gcalcli it is
-  just a calendar. Only a month view exists so far; day/3-day/week views slot into
-  `Bar/Calendar/`.
+  just a calendar. Views: day, 3-day (default), week and month. Click the title to cycle
+  them, use the arrows or the normal wheel to move through time.
 - _Network:_ Displays whether the machine is connected to wifi or not. Ethernet is assumed
   a permanent feature, and the module is thus hidden even though a network is connected.
   When clicked, shows the network name, local ip address, interface that is being used to

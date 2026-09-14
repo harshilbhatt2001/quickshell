@@ -15,15 +15,42 @@ Item {
   property date anchor: new Date()
   property double margin: 6
   property date selected: new Date()
-  property string view: "month"
+  property string view: "3day"
+  readonly property var viewOrder: ["day", "3day", "week", "month"]
   readonly property var views: ({
+								  "day": dayView,
+								  "3day": threeDayView,
+								  "week": weekView,
 								  "month": monthView
 								})
+
+  function cycleView() {
+	root.view = root.viewOrder[(root.viewOrder.indexOf(root.view) + 1) % root.viewOrder.length];
+  }
 
   implicitHeight: column.implicitHeight + root.margin * 2
   implicitWidth: column.implicitWidth + root.margin * 2
 
   onAnchorChanged: CalendarManager.anchor = root.anchor
+
+  // Vertical wheel steps the period; the island owns the horizontal wheel.
+  WheelHandler {
+	acceptedDevices: PointerDevice.AllDevices
+	orientation: Qt.Vertical
+
+	onWheel: event => {
+	  if (!wheelCooldown.running && viewLoader.item) {
+		viewLoader.item.step(event.angleDelta.y < 0 ? 1 : -1);
+		wheelCooldown.restart();
+	  }
+	}
+  }
+
+  Timer {
+	id: wheelCooldown
+
+	interval: 150
+  }
 
   ColumnLayout {
 	id: column
@@ -39,22 +66,22 @@ Item {
 	  Layout.fillWidth: true
 	  spacing: 0
 
-	  ArrowButton {
-		icon: "󰅁"
+	  HeaderButton {
+		text: "󰅁"
 
 		onClicked: viewLoader.item.step(-1)
 	  }
 
-	  StyledText {
+	  HeaderButton {
 		Layout.fillWidth: true
-		color: Colors.base
 		fontSize: 11
-		horizontalAlignment: Qt.AlignHCenter
 		text: viewLoader.item ? viewLoader.item.title : ""
+
+		onClicked: root.cycleView()
 	  }
 
-	  ArrowButton {
-		icon: "󰅂"
+	  HeaderButton {
+		text: "󰅂"
 
 		onClicked: viewLoader.item.step(1)
 	  }
@@ -76,21 +103,46 @@ Item {
   }
 
   Component {
+	id: dayView
+
+	DaysView {
+	  days: 1
+	}
+  }
+
+  Component {
+	id: threeDayView
+
+	DaysView {
+	  days: 3
+	}
+  }
+
+  Component {
+	id: weekView
+
+	DaysView {
+	  days: 7
+	}
+  }
+
+  Component {
 	id: monthView
 
 	MonthView {}
   }
 
-  component ArrowButton: Rectangle {
-	id: arrow
+  component HeaderButton: Rectangle {
+	id: button
 
-	property string icon
+	property alias fontSize: label.fontSize
+	property alias text: label.text
 
 	signal clicked
 
-	color: arrowHover.hovered ? Qt.alpha(Colors.base, 0.12) : "transparent"
+	color: buttonHover.hovered ? Qt.alpha(Colors.base, 0.12) : "transparent"
 	implicitHeight: 20
-	implicitWidth: 24
+	implicitWidth: Math.max(24, label.implicitWidth + 12)
 	radius: 6
 
 	Behavior on color {
@@ -100,18 +152,19 @@ Item {
 	}
 
 	HoverHandler {
-	  id: arrowHover
+	  id: buttonHover
 	}
 
 	TapHandler {
-	  onTapped: arrow.clicked()
+	  onTapped: button.clicked()
 	}
 
 	StyledText {
+	  id: label
+
 	  anchors.centerIn: parent
 	  color: Colors.base
 	  fontSize: 11
-	  text: arrow.icon
 	}
   }
 }
