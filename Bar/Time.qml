@@ -16,10 +16,7 @@ Container {
   id: root
 
   property bool island: false
-  property color islandColor: Colors.mauve
   property double islandHeight: root.mprisHeight
-  readonly property color islandInk: Qt.colorEqual(root.islandColor, Colors.base) ? Colors.text :
-																					Colors.base
   property int islandPage: 0
   property double islandWidth: 350
   property Notification latestNotif
@@ -55,7 +52,7 @@ Container {
 	root.openIsland();
   }
 
-  boxColor: Colors.mauve
+  boxColor: Colors.base
   defaultItem: time
   exclusiveMonitor: root.monitor
   exclusiveToScreen: true
@@ -86,7 +83,6 @@ Container {
 	  when: root.island == true && (root.hovered || MprisManager.hasMedia)
 
 	  PropertyChanges {
-		root.boxColor: root.islandColor
 		root.boxHeight: root.islandHeight
 		root.boxRadius: 12
 		root.boxWidth: root.islandWidth
@@ -211,13 +207,6 @@ Container {
 	  }
 
 	  Binding {
-		property: "islandColor"
-		target: root
-		value: swipe.currentItem && swipe.currentItem.item && swipe.currentItem.item.pageColor
-			   !== undefined ? swipe.currentItem.item.pageColor : Colors.mauve
-	  }
-
-	  Binding {
 		property: "islandWidth"
 		target: root
 		value: swipe.currentItem && swipe.currentItem.implicitWidth > 0 ? swipe.currentItem.implicitWidth :
@@ -286,7 +275,7 @@ Container {
 		  Rectangle {
 			required property int index
 
-			color: root.islandInk
+			color: Colors.text
 			height: 3
 			opacity: index === swipe.currentIndex ? 0.9 : 0.3
 			radius: 1.5
@@ -321,6 +310,7 @@ Container {
 	StyledText {
 	  property string component: "time"
 
+	  color: Colors.text
 	  horizontalAlignment: Qt.AlignCenter
 	  text: Time.time
 	  verticalAlignment: Qt.AlignVCenter
@@ -344,7 +334,7 @@ Container {
 	  }
 
 	  Rectangle {
-		color: Colors.surface1
+		color: Colors.surface0
 		radius: 9
 
 		anchors {
@@ -355,7 +345,7 @@ Container {
 		RowLayout {
 		  Rectangle {
 			Layout.margins: notificationRoot.innerMargin
-			color: Colors.mauve
+			color: Colors.surface1
 			implicitHeight: notificationRoot.getInnerHeight()
 			implicitWidth: notificationRoot.getInnerHeight()
 			radius: 5
@@ -472,7 +462,7 @@ Container {
 	  }
 
 	  Rectangle {
-		color: Colors.surface1
+		color: Colors.surface0
 		radius: 9
 
 		anchors {
@@ -484,7 +474,7 @@ Container {
 		  Rectangle {
 			Layout.margins: mprisToastRoot.innerMargin
 			clip: true
-			color: Colors.mauve
+			color: Colors.surface1
 			implicitHeight: mprisToastRoot.getInnerHeight()
 			implicitWidth: mprisToastRoot.getInnerHeight()
 			radius: 5
@@ -525,11 +515,11 @@ Container {
 
 			  Rectangle {
 				anchors.fill: parent
-				color: Colors.overlay0
+				color: Colors.surface2
 				radius: 100
 
 				Rectangle {
-				  color: Colors.mauve
+				  color: Qt.alpha(Colors.mauve, 0.6)
 				  implicitWidth: parent.width * (mprisToastRoot.trackInfo
 												 ? mprisToastRoot.trackInfo["lengthPercent"] : 0)
 				  radius: 100
@@ -548,6 +538,7 @@ Container {
 				}
 
 				StyledText {
+				  color: Colors.text
 				  propo: true
 				  text: {
 					if (!mprisToastRoot.trackInfo) {

@@ -18,7 +18,6 @@ Item {
   property var editingEvent: null
   property bool editorOpen: false
   property double margin: 10
-  readonly property color pageColor: Colors.base
   property date selected: new Date()
   property string view: "month"
   readonly property var viewOrder: ["day", "3day", "week", "month"]
