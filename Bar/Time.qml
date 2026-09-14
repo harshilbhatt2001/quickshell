@@ -405,6 +405,52 @@ Container {
 	  implicitHeight: root.mprisHeight
 	  implicitWidth: root.mprisWidth
 
+	  // cava only runs while this toast is showing and something plays.
+	  Binding {
+		property: "active"
+		target: CavaManager
+		value: mprisToastRoot.visible && MprisManager.isPlaying
+	  }
+
+	  // Faint spectrum behind the content.
+	  Row {
+		id: spectrum
+
+		readonly property double barWidth: mprisToastRoot.width / CavaManager.barCount
+
+		anchors.bottom: parent.bottom
+		anchors.left: parent.left
+		anchors.right: parent.right
+		height: parent.height
+		opacity: 0.07
+
+		Repeater {
+		  model: CavaManager.barCount
+
+		  Item {
+			required property int index
+
+			height: spectrum.height
+			width: spectrum.barWidth
+
+			Rectangle {
+			  anchors.bottom: parent.bottom
+			  anchors.horizontalCenter: parent.horizontalCenter
+			  color: Colors.text
+			  height: spectrum.height * (CavaManager.bars[parent.index] || 0)
+			  radius: 1
+			  width: spectrum.barWidth - 2
+
+			  Behavior on height {
+				NumberAnimation {
+				  duration: 60
+				}
+			  }
+			}
+		  }
+		}
+	  }
+
 	  // Keep the position (and thus the progress bar) ticking while the toast
 	  // is visible; Quickshell only re-reads it when asked.
 	  Timer {
