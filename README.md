@@ -126,6 +126,48 @@ useless features. Speaking of...
   - Volume control? (probably not, way-edges clears)
   - Interactible mpris player (skip and rewind)
   - Music indicator on the left of the clock when music is playing
+- Smaller stuff worth stealing (from a trawl of r/unixporn, filtered for no bullshit)
+  - _Workspaces_
+    - Urgent window turns its workspace number red
+    - One sliding highlight for the focused workspace, front edge leads and back edge
+      drags, instead of recolouring each number
+    - Include rule-assigned but empty workspaces so the strip doesn't jump around
+    - Each monitor's bar highlights its own active workspace, never the globally focused
+      one
+  - _Clock / notifications_
+    - Hairline countdown along the bottom of the toast, paused while hovered
+    - Critical urgency: red tint on the frame only, longer dwell
+    - Drag right to dismiss, click to run the notification's default action
+    - Toast only on the focused monitor
+    - Notification history as a page in the hover pager: capped, newest first, relative
+      timestamps ("just now", "3 min ago", "yesterday 14:02"), persisted to json
+    - Music indicator: one play/pause glyph plus elided "artist — title", hidden when no
+      player, drops the title before it can touch a neighbour, right-click cycles players
+  - _Right section_
+    - Battery expanded view shows the wall-clock time of empty/full, not just a duration,
+      and rows vanish when UPower can't report them
+    - Battery hover shows a one-liner: "2h 14m remaining" / "41m until full" / "full"
+    - Caps lock / num lock glyph that only exists while a lock is on
+    - Mic-in-use glyph that only exists while something is capturing
+  - _Logout menu_
+    - Five tiles (lock, logout, sleep, restart, shutdown). Press-and-hold fill to confirm
+      the destructive ones, no dialogs. Arrows + held enter drive it, escape closes. Hooks
+      the existing ipc signal
+  - _Lock screen_
+    - Blurred wallpaper, big clock, no password field until the first keypress, back to
+      the clock after 15s idle
+    - Wrong password shakes the field and shows the lowercase pam message, no red banner
+    - Current mpris track as one line when something is playing
+    - Lock surface on every monitor before unlock is allowed, survives hot-reload
+  - _General_
+    - Only one module expanded at a time, all collapse when a client window gains focus
+    - Ipc verbs: `dismissToast`, `toggleHistory`, and `peek` (un-hides every hidden module
+      for two seconds, then it all slides away again)
+    - Keyboard for anything that grabs focus: hjkl/arrows and escape, release focus
+      explicitly when the popup hides
+    - Sounds on lock/unlock/logout and wifi connect/disconnect (optional, no ui)
+    - One-time staggered slide-in of modules on startup
+    - One `animationsEnabled` constant in Container for stillness fans, not a setting
   - Hover to show mpris thing when music is paused
   - Mpris firefox exclusion (I had to disable it in about:config lol)
 
